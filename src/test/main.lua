@@ -5,3 +5,5 @@
         return n * fact(n-1)
       end
     end
+
+    a = func(1)

@@ -3,6 +3,7 @@ package org.jlua.main;
 import org.luaj.vm2.ast.Chunk;
 import org.luaj.vm2.ast.Exp.AnonFuncDef;
 import org.luaj.vm2.ast.Stat.FuncDef;
+import org.luaj.vm2.ast.Stat.LocalAssign;
 import org.luaj.vm2.ast.Stat.LocalFuncDef;
 import org.luaj.vm2.ast.Exp.VarExp;
 import org.luaj.vm2.ast.Visitor;
@@ -38,9 +39,9 @@ public class Main {
 							+ stat.name.endLine + "." + stat.name.endColumn);
 				}
 
-				public void visit(LocalFuncDef stat) {
-					System.out.println("Local function definition '"
-							+ stat.name.name + "' at " + stat.beginLine + "."
+				public void visit(LocalAssign stat) {
+					System.out.println("Local Assignment definition '"
+							+ stat.toString() + "' at " + stat.beginLine + "."
 							+ stat.beginColumn + "," + stat.endLine + "."
 							+ stat.endColumn);
 				}

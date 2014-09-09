@@ -6,4 +6,4 @@
       end
     end
 
-    a = func(1)
+    local a = func(1)

@@ -8,7 +8,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 /**
  * Created by Lucas Allan Amorim on 2014-09-08.
  */
-@TypeSystem({ boolean.class, BigInteger.class, String.class})
+@TypeSystem({ LuaNode.class, boolean.class, BigInteger.class, String.class})
 public abstract class LuaTypes {
 
 

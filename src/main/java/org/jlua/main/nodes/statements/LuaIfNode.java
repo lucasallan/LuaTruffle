@@ -32,7 +32,6 @@ public class LuaIfNode extends LuaStatementNode {
 
 	public LuaIfNode(SourceSection src, LuaExpressionNode conditionNode,
 			LuaStatementNode thenPartNode, LuaStatementNode elsePartNode) {
-		super(src);
 		this.conditionNode = conditionNode;
 		this.thenPartNode = thenPartNode;
 		this.elsePartNode = elsePartNode;

@@ -10,8 +10,4 @@ import com.oracle.truffle.api.nodes.*;
 public abstract class LuaStatementNode extends Node {
 
 	public abstract void executeVoid(VirtualFrame frame);
-
-	public LuaStatementNode(SourceSection src) {
-		super(src);
-	}
 }

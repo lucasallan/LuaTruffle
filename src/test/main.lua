@@ -7,6 +7,7 @@
     end
 
     local a = func(1)
+    c = 10
     if a == 0 then
         return 1
     end

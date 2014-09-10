@@ -43,6 +43,11 @@
 			<plugins>
 				<plugin>
 					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.1</version>
+					<configuration>
+						<source>1.7</source>
+						<target>1.7</target>
+					</configuration>
 					<executions>
 						<execution>
 							<id>anno</id>
@@ -52,7 +57,6 @@
 							</goals>
 							<configuration>
 								<annotationProcessors>
-									<annotationProcessor>org.jruby.anno.AnnotationBinder</annotationProcessor>
 									<annotationProcessor>com.oracle.truffle.dsl.processor.TruffleProcessor</annotationProcessor>
 								</annotationProcessors>
 								<generatedSourcesDirectory>target/generated-sources</generatedSourcesDirectory>

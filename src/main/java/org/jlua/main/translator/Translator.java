@@ -15,6 +15,14 @@ public class Translator extends Visitor {
     @Override
     public void visit(Stat.Assign assign) {
         visitLuaNode(assign);
+
+        for (Object ob : assign.vars){
+
+            Exp.NameExp var = (Exp.NameExp) ob;
+            var.accept(this);
+            System.err.println("Var Assignment: " + var.name.name + " " + var.name.variable);
+
+        }
     }
 
     @Override
@@ -29,6 +37,8 @@ public class Translator extends Visitor {
 
     @Override
     public void visit(Stat.FuncDef funcDef) {
+        System.err.println(funcDef.name.name.name);
+        funcDef.body.accept(this);
         visitLuaNode(funcDef);
     }
 
@@ -39,6 +49,9 @@ public class Translator extends Visitor {
 
     @Override
     public void visit(Stat.IfThenElse ifThenElse) {
+        ifThenElse.elseblock.accept(this);
+        ifThenElse.ifblock.accept(this);
+        ifThenElse.ifexp.accept(this);
         visitLuaNode(ifThenElse);
     }
 
@@ -49,11 +62,18 @@ public class Translator extends Visitor {
 
     @Override
     public void visit(Stat.LocalFuncDef localFuncDef) {
+        localFuncDef.accept(this);
+        localFuncDef.body.accept(this);
         visitLuaNode(localFuncDef);
     }
 
     @Override
     public void visit(Stat.NumericFor numericFor) {
+        numericFor.accept(this);
+        numericFor.block.accept(this);
+        numericFor.initial.accept(this);
+        numericFor.step.accept(this);
+        numericFor.limit.accept(this);
         visitLuaNode(numericFor);
     }
 
@@ -65,6 +85,11 @@ public class Translator extends Visitor {
 
     @Override
     public void visit(Stat.Return aReturn) {
+        for(Object ob : aReturn.values) {
+            if (ob instanceof Exp){
+                ((Exp) ob).accept(this);
+            }
+        }
         visitLuaNode(aReturn);
     }
 
@@ -75,17 +100,23 @@ public class Translator extends Visitor {
 
     @Override
     public void visit(FuncBody funcBody) {
-        visitLuaNode(funcBody);
-    }
+        funcBody.block.accept(this);
+        funcBody.parlist.accept(this);
+     }
 
     @Override
     public void visit(FuncArgs funcArgs) {
-        visitLuaNode(funcArgs);
+        funcArgs.accept(this);
+        for (Object ob : funcArgs.exps){
+            handleUnknown(ob);
+        }
     }
 
     @Override
     public void visit(TableField tableField) {
-        visitLuaNode(tableField);
+        tableField.accept(this);
+        tableField.index.accept(this);
+        tableField.rhs.accept(this);
     }
 
     @Override
@@ -95,11 +126,19 @@ public class Translator extends Visitor {
 
     @Override
     public void visit(Exp.BinopExp binopExp) {
+        binopExp.lhs.accept(this);
+        binopExp.rhs.accept(this);
         visitLuaNode(binopExp);
     }
 
     @Override
     public void visit(Exp.Constant constant) {
+
+        if (constant.value.typename().equals("number")){
+            System.err.println("Constant value: " +constant.value.checkint());
+        } else {
+            System.err.println("Constant value: " +constant.value.toString());
+        }
         visitLuaNode(constant);
     }
 
@@ -145,7 +184,9 @@ public class Translator extends Visitor {
 
     @Override
     public void visit(ParList parList) {
-        visitLuaNode(parList);
+        for (Object ob : parList.names){
+            handleUnknown(ob);
+        }
     }
 
     @Override
@@ -155,27 +196,18 @@ public class Translator extends Visitor {
 
     @Override
     public void visitVars(List list) {
-        visitLuaNode(list);
+        System.err.println("List size: " + list.size());
     }
 
-    @Override
-    public void visitExps(List list) {
-        visitLuaNode(list);
-    }
-
-    @Override
-    public void visitNames(List list) {
-        visitLuaNode(list);
-    }
 
     @Override
     public void visit(Name name) {
-        visitLuaNode(name);
+        System.out.println("Visit Name: " + name.name);
     }
 
     @Override
     public void visit(String s) {
-        visitLuaNode(s);
+        System.out.println("String Name: " + s);
     }
 
     @Override
@@ -197,6 +229,10 @@ public class Translator extends Visitor {
         System.err.println("Visitor: " +node.getClass().getName() + " Line: " + node.beginLine);
     }
 
+    private void visitLuaNode(Exp node){
+        System.err.println("Visitor: " +node.getClass().getName() + " Line: " + node.beginLine);
+    }
+
     private void visitLuaNode(NameScope node){
         if (node != null) {
             System.err.println("Visitor: " + node.getClass().getName());
@@ -206,8 +242,20 @@ public class Translator extends Visitor {
     private void visitLuaNode(Chunk node) {
         node.accept(this);
     }
-    private void visitLuaNode(Object object) {
-        System.err.println("Visitor: " +object.getClass().getName());
+
+    private void handleUnknown(Object ob) {
+        if (ob instanceof Exp){
+            ((Exp) ob).accept(this);
+        } else if (ob instanceof Stat) {
+            ((Stat) ob).accept(this);
+        } else if (ob instanceof Name) {
+            visit((Name) ob);
+        } else {
+            System.out.println("FuncArgs - Unknown type: " +ob.getClass().getName());
+        }
     }
+//    private void visitLuaNode(Object object) {
+//        System.err.println("Visitor: " +object.getClass().getName());
+//    }
 
 }

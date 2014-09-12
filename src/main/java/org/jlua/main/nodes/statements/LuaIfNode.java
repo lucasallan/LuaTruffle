@@ -30,7 +30,7 @@ public class LuaIfNode extends LuaStatementNode {
 	@CompilerDirectives.CompilationFinal
 	private int elseCount;
 
-	public LuaIfNode(SourceSection src, LuaExpressionNode conditionNode,
+	public LuaIfNode(LuaExpressionNode conditionNode,
 			LuaStatementNode thenPartNode, LuaStatementNode elsePartNode) {
 		this.conditionNode = conditionNode;
 		this.thenPartNode = thenPartNode;

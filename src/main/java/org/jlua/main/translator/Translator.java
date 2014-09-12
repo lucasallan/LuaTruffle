@@ -1,9 +1,13 @@
 package org.jlua.main.translator;
 
+import org.jlua.main.nodes.LuaConstantNode;
 import org.jlua.main.nodes.LuaNode;
+import org.jlua.main.nodes.expressions.LuaBinaryExpression;
 import org.luaj.vm2.ast.*;
 import org.luaj.vm2.ast.Stat.LocalAssign;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -49,15 +53,28 @@ public class Translator extends Visitor {
 
     @Override
     public void visit(Stat.IfThenElse ifThenElse) {
-        ifThenElse.elseblock.accept(this);
-        ifThenElse.ifblock.accept(this);
-        ifThenElse.ifexp.accept(this);
-        visitLuaNode(ifThenElse);
+//        for (Object ob : ifThenElse.elseblock.stats) {
+//            handleUnknown(ob);
+//        }
+//        for (Object ob : ifThenElse.ifblock.stats) {
+//            handleUnknown(ob);
+//        }
+          handleUnknown(ifThenElse.ifexp);
+
+        //ifThenElse.ifblock.accept(this);
+        //ifThenElse.ifexp.accept(this);
+        //visitLuaNode(ifThenElse);
     }
 
-    @Override
-    public void visit(LocalAssign localAssign) {
-        visitLuaNode(localAssign);
+    public void visitLocalAssign(LocalAssign localAssign) {
+
+        List<Object> values = new ArrayList<Object>();
+        List<String> names = new ArrayList<String>();
+
+        HashMap<String, Object> variables = new HashMap<String, Object>();
+        for(int i = 0; i< localAssign.values.size(); i++) {
+            variables.put((String) visitNode(localAssign.names.get(i)), visitNode(localAssign.values.get(i)));
+        }
     }
 
     @Override
@@ -124,22 +141,33 @@ public class Translator extends Visitor {
         visitLuaNode(anonFuncDef);
     }
 
-    @Override
     public void visit(Exp.BinopExp binopExp) {
-        binopExp.lhs.accept(this);
-        binopExp.rhs.accept(this);
-        visitLuaNode(binopExp);
+        System.err.println(binopExp.op);
+    }
+
+    public LuaBinaryExpression visitBinoExp(Exp.BinopExp binopExp) {
+        LuaConstantNode left = visitConstant((Exp.Constant) binopExp.lhs);
+        LuaConstantNode right = visitConstant((Exp.Constant) binopExp.rhs);
+
+        return new LuaBinaryExpression(left, right,binopExp.op);
+
     }
 
     @Override
     public void visit(Exp.Constant constant) {
+        System.err.println(visitConstant(constant).toString());
+    }
 
+
+    public LuaConstantNode visitConstant(Exp.Constant constant){
+        Object object;
         if (constant.value.typename().equals("number")){
-            System.err.println("Constant value: " +constant.value.checkint());
+            object = constant.value.checkint();
         } else {
-            System.err.println("Constant value: " +constant.value.toString());
+            object = constant.value.toString();
         }
-        visitLuaNode(constant);
+
+        return new LuaConstantNode(object);
     }
 
     @Override
@@ -227,6 +255,15 @@ public class Translator extends Visitor {
 
     private void visitLuaNode(Stat node) {
         System.err.println("Visitor: " +node.getClass().getName() + " Line: " + node.beginLine);
+    }
+
+    private Object visitNode(Object ob) {
+        if (ob instanceof Exp.Constant) {
+            return visitConstant((Exp.Constant)ob);
+        } else if (ob instanceof Name) {
+            return ((Name) ob).name;
+        }
+        return null;
     }
 
     private void visitLuaNode(Exp node){

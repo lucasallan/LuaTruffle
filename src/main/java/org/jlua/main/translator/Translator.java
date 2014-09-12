@@ -1,8 +1,16 @@
 package org.jlua.main.translator;
 
+import com.oracle.truffle.api.nodes.Node;
 import org.jlua.main.nodes.LuaConstantNode;
+import org.jlua.main.nodes.LuaExpressionNode;
 import org.jlua.main.nodes.LuaNode;
+import org.jlua.main.nodes.LuaStatementNode;
 import org.jlua.main.nodes.expressions.LuaBinaryExpression;
+import org.jlua.main.nodes.expressions.LuaFunctionBody;
+import org.jlua.main.nodes.expressions.LuaReturnException;
+import org.jlua.main.nodes.expressions.LuaReturnNode;
+import org.jlua.main.nodes.statements.LuaBlockNode;
+import org.jlua.main.nodes.statements.LuaIfNode;
 import org.luaj.vm2.ast.*;
 import org.luaj.vm2.ast.Stat.LocalAssign;
 
@@ -16,6 +24,58 @@ import java.util.List;
 
 public class Translator extends Visitor {
 
+    private static final HashMap<String, Class> classHashMap = new HashMap<String, Class>();
+
+    private Object translatedNode;
+
+    static {
+        classHashMap.put("org.luaj.vm2.ast.Block", org.luaj.vm2.ast.Block.class);
+    }
+
+    public Object translate(Object object) {
+        if (object instanceof Chunk){
+            return visitChunk((Chunk) object);
+        } else if (object instanceof Block) {
+            return visitBlock((Block) object);
+        } else if (object instanceof Stat.IfThenElse) {
+            return visitIfThenElse((Stat.IfThenElse) object);
+        } else if (object instanceof Exp.BinopExp) {
+            return visitBinoExp((Exp.BinopExp) object);
+        } else if (object instanceof Stat.Return) {
+            return visitReturn((Stat.Return) object);
+        } else if (object instanceof Exp.Constant) {
+            return visitConstant((Exp.Constant) object);
+        } else {
+            System.err.println("Needs be handled: " + object.getClass().getName());
+            return null;
+        }
+
+    }
+
+    public Object visitIfThenElse(Stat.IfThenElse ifThenElse) {
+
+        LuaBinaryExpression expression = (LuaBinaryExpression) translate(ifThenElse.ifexp);
+        LuaBlockNode elseBlock = null;
+        LuaBlockNode ifBlock = null;
+
+        if (ifThenElse.elseblock != null) {
+            LuaStatementNode[] elseBlocks = new LuaStatementNode[ifThenElse.elseblock.stats.size()];
+            for (int i = 0; i < ifThenElse.elseblock.stats.size(); i++) {
+                elseBlocks[i] = (LuaStatementNode) translate(ifThenElse.elseblock.stats.get(i));
+            }
+            elseBlock = new LuaBlockNode(elseBlocks);
+        }
+        if (ifThenElse.ifblock != null) {
+            LuaStatementNode[] ifBlocks = new LuaStatementNode[ifThenElse.ifblock.stats.size()];
+            for (int i = 0; i < ifThenElse.ifblock.stats.size(); i++) {
+                ifBlocks[i] = (LuaStatementNode) translate(ifThenElse.ifblock.stats.get(i));
+            }
+            ifBlock = new LuaBlockNode(ifBlocks);
+        }
+
+        // TODO Handle elseIfs
+        return new LuaIfNode(expression, elseBlock, ifBlock);
+    }
     @Override
     public void visit(Stat.Assign assign) {
         visitLuaNode(assign);
@@ -27,6 +87,34 @@ public class Translator extends Visitor {
             System.err.println("Var Assignment: " + var.name.name + " " + var.name.variable);
 
         }
+    }
+
+    public void visit(Chunk chunk){
+        // Entry point
+        System.out.print(chunk.block.getClass().getName());
+        chunk.block.accept(this);
+    }
+
+    public Object visitChunk(Chunk chunk) {
+        visitBlock(chunk.block);
+        return null;
+        //return visitBlock(chunk.block);
+    }
+
+    public Object visitBlock(Block block){
+        //visit(block.scope);
+        LuaBlockNode blockNode = null;
+
+        if ( block.stats != null ) {
+            LuaStatementNode blocks[] = new LuaStatementNode[block.stats.size()];
+
+            for (int i = 0, n = block.stats.size(); i < n; i++) {
+                blocks[i] = (LuaStatementNode) translate((Stat) block.stats.get(i));//.accept(this);
+            }
+
+            blockNode = new LuaBlockNode(blocks);
+        }
+        return blockNode;
     }
 
     @Override
@@ -49,21 +137,6 @@ public class Translator extends Visitor {
     @Override
     public void visit(Stat.GenericFor genericFor) {
         visitLuaNode(genericFor);
-    }
-
-    @Override
-    public void visit(Stat.IfThenElse ifThenElse) {
-//        for (Object ob : ifThenElse.elseblock.stats) {
-//            handleUnknown(ob);
-//        }
-//        for (Object ob : ifThenElse.ifblock.stats) {
-//            handleUnknown(ob);
-//        }
-          handleUnknown(ifThenElse.ifexp);
-
-        //ifThenElse.ifblock.accept(this);
-        //ifThenElse.ifexp.accept(this);
-        //visitLuaNode(ifThenElse);
     }
 
     public void visitLocalAssign(LocalAssign localAssign) {
@@ -100,14 +173,11 @@ public class Translator extends Visitor {
         visitLuaNode(repeatUntil);
     }
 
-    @Override
-    public void visit(Stat.Return aReturn) {
-        for(Object ob : aReturn.values) {
-            if (ob instanceof Exp){
-                ((Exp) ob).accept(this);
-            }
-        }
-        visitLuaNode(aReturn);
+    public LuaReturnNode visitReturn(Stat.Return aReturn) {
+        // System.out.println(aReturn.nreturns()); might have more than one return
+        Object objectReturned = translate(aReturn.values.get(0));
+
+        return new LuaReturnNode((LuaNode) objectReturned);
     }
 
     @Override
@@ -149,7 +219,7 @@ public class Translator extends Visitor {
         LuaConstantNode left = visitConstant((Exp.Constant) binopExp.lhs);
         LuaConstantNode right = visitConstant((Exp.Constant) binopExp.rhs);
 
-        return new LuaBinaryExpression(left, right,binopExp.op);
+        return new LuaBinaryExpression(left, right, binopExp.op);
 
     }
 

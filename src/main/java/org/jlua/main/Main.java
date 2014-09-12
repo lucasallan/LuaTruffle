@@ -16,7 +16,9 @@ public class Main {
 		    String file = "src/test/main.lua";
 			LuaParser parser = new LuaParser(new FileInputStream(file));
 			Chunk chunk = parser.Chunk();
-			chunk.accept(new Translator());
+            Object ob = new Translator().translate(chunk.block);
+
+            System.out.println(ob.getClass().getName());
 
 		} catch (Exception e) {
 			e.printStackTrace();

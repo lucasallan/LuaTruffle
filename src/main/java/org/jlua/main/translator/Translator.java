@@ -24,14 +24,7 @@ import java.util.List;
 
 public class Translator extends Visitor {
 
-    private static final HashMap<String, Class> classHashMap = new HashMap<String, Class>();
-
-    private Object translatedNode;
-
-    static {
-        classHashMap.put("org.luaj.vm2.ast.Block", org.luaj.vm2.ast.Block.class);
-    }
-
+    // TODO needs a good cleaup
     public Object translate(Object object) {
         if (object instanceof Chunk){
             return visitChunk((Chunk) object);
@@ -89,19 +82,11 @@ public class Translator extends Visitor {
         }
     }
 
-    public void visit(Chunk chunk){
-        // Entry point
-        System.out.print(chunk.block.getClass().getName());
-        chunk.block.accept(this);
+    public LuaBlockNode visitChunk(Chunk chunk) {
+        return visitBlock(chunk.block);
     }
 
-    public Object visitChunk(Chunk chunk) {
-        visitBlock(chunk.block);
-        return null;
-        //return visitBlock(chunk.block);
-    }
-
-    public Object visitBlock(Block block){
+    public LuaBlockNode visitBlock(Block block){
         //visit(block.scope);
         LuaBlockNode blockNode = null;
 
@@ -146,7 +131,7 @@ public class Translator extends Visitor {
 
         HashMap<String, Object> variables = new HashMap<String, Object>();
         for(int i = 0; i< localAssign.values.size(); i++) {
-            variables.put((String) visitNode(localAssign.names.get(i)), visitNode(localAssign.values.get(i)));
+            variables.put((String) visitNode(localAssign.names.get(i)), translate(localAssign.values.get(i)));
         }
     }
 
@@ -346,10 +331,6 @@ public class Translator extends Visitor {
         }
     }
 
-    private void visitLuaNode(Chunk node) {
-        node.accept(this);
-    }
-
     private void handleUnknown(Object ob) {
         if (ob instanceof Exp){
             ((Exp) ob).accept(this);
@@ -361,8 +342,5 @@ public class Translator extends Visitor {
             System.out.println("FuncArgs - Unknown type: " +ob.getClass().getName());
         }
     }
-//    private void visitLuaNode(Object object) {
-//        System.err.println("Visitor: " +object.getClass().getName());
-//    }
 
 }

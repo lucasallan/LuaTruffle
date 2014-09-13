@@ -17,7 +17,7 @@ public class LuaFunctionBodyNode extends LuaExpressionNode {
     }
 
     @Override
-    public Object executeGeneric(VirtualFrame frame) {
+    public Object execute(VirtualFrame frame) {
         try {
             statementNode.executeVoid(frame);
         } catch (LuaReturnException ex) {

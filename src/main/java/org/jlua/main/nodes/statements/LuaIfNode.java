@@ -1,5 +1,6 @@
 package org.jlua.main.nodes.statements;
 
+import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import org.jlua.main.nodes.LuaExpressionNode;
 import org.jlua.main.nodes.LuaStatementNode;
 
@@ -39,8 +40,16 @@ public class LuaIfNode extends LuaStatementNode {
 
 	@Override
 	public void executeVoid(VirtualFrame frame) {
-		if (CompilerDirectives.injectBranchProbability(getBranchProbability(),
-				conditionNode.executeBoolean(frame))) {
+        final boolean condition;
+
+        try {
+            condition = conditionNode.executeBoolean(frame);
+        } catch (UnexpectedResultException e) {
+            // TODO
+            throw new UnsupportedOperationException(e);
+        }
+
+        if (CompilerDirectives.injectBranchProbability(getBranchProbability(), condition)) {
 			if (CompilerDirectives.inInterpreter()) {
 				thenCount++;
 			}

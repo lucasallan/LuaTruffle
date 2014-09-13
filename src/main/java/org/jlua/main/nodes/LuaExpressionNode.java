@@ -8,17 +8,10 @@ import org.jlua.main.nodes.LuaTypesGen;
 /**
  * Created by Lucas Allan Amorim on 2014-09-08.
  */
-@TypeSystemReference(LuaTypes.class)
-public abstract class LuaExpressionNode extends Node {
+public abstract class LuaExpressionNode extends LuaNode {
 
-	public abstract Object executeGeneric(VirtualFrame frame);
-	
 	public void executeVoid(VirtualFrame frame) {
-		executeGeneric(frame);
+		execute(frame);
 	}
-
-    public boolean executeBoolean(VirtualFrame frame) {
-        return LuaTypesGen.LUATYPES.asBoolean(executeGeneric(frame));
-    }
 
 }

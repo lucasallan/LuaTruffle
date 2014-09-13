@@ -20,8 +20,8 @@ public class LuaBinaryExpression extends LuaExpressionNode {
     }
 
     @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        return null;
+    public Object execute(VirtualFrame frame) {
+        return executeBoolean(frame);
     }
 
     public boolean executeBoolean(VirtualFrame frame){

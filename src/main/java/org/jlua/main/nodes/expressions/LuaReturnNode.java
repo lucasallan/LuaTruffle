@@ -19,13 +19,9 @@ public class LuaReturnNode extends LuaStatementNode {
         this.valueNode = valueNode;
     }
 
-    public Object executeGeneric(VirtualFrame frame) {
-        return valueNode.execute(frame);
-    }
-
     @Override
     public void executeVoid(VirtualFrame frame) {
-        Object value = executeGeneric(frame);
+        Object value = valueNode.execute(frame);
         throw new LuaReturnException(value);
     }
 

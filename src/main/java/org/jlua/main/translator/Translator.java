@@ -5,10 +5,7 @@ import org.jlua.main.nodes.LuaConstantNode;
 import org.jlua.main.nodes.LuaExpressionNode;
 import org.jlua.main.nodes.LuaNode;
 import org.jlua.main.nodes.LuaStatementNode;
-import org.jlua.main.nodes.expressions.LuaBinaryExpression;
-import org.jlua.main.nodes.expressions.LuaFunctionBody;
-import org.jlua.main.nodes.expressions.LuaReturnException;
-import org.jlua.main.nodes.expressions.LuaReturnNode;
+import org.jlua.main.nodes.expressions.*;
 import org.jlua.main.nodes.statements.LuaBlockNode;
 import org.jlua.main.nodes.statements.LuaIfNode;
 import org.luaj.vm2.ast.*;
@@ -38,6 +35,12 @@ public class Translator extends Visitor {
             return visitReturn((Stat.Return) object);
         } else if (object instanceof Exp.Constant) {
             return visitConstant((Exp.Constant) object);
+        } else if (object instanceof Stat.FuncDef) {
+            return visitFuncDef((Stat.FuncDef) object);
+        } else if (object instanceof Stat.FuncCallStat) {
+            return visitFuncCallStat((Stat.FuncCallStat) object);
+        } else if (object instanceof Exp.ParensExp) {
+            return visitParensExp((Exp.ParensExp) object);
         } else {
             System.err.println("Needs be handled: " + object.getClass().getName());
             return null;
@@ -119,6 +122,15 @@ public class Translator extends Visitor {
         visitLuaNode(funcDef);
     }
 
+    public Object visitFuncDef(Stat.FuncDef funcDef) {
+
+        return null;
+    }
+
+    public Object visitFuncCallStat(Stat.FuncCallStat funcCallStat) {
+        return null;
+    }
+
     @Override
     public void visit(Stat.GenericFor genericFor) {
         visitLuaNode(genericFor);
@@ -159,9 +171,8 @@ public class Translator extends Visitor {
     }
 
     public LuaReturnNode visitReturn(Stat.Return aReturn) {
-        // System.out.println(aReturn.nreturns()); might have more than one return
+        //System.out.println(aReturn.nreturns()); //might have more than one return
         Object objectReturned = translate(aReturn.values.get(0));
-
         return new LuaReturnNode((LuaNode) objectReturned);
     }
 
@@ -204,8 +215,10 @@ public class Translator extends Visitor {
         LuaConstantNode left = visitConstant((Exp.Constant) binopExp.lhs);
         LuaConstantNode right = visitConstant((Exp.Constant) binopExp.rhs);
 
+        if (binopExp.op == 13) {
+            return new LuaArithmeticExpression(left, right, binopExp.op);
+        }
         return new LuaBinaryExpression(left, right, binopExp.op);
-
     }
 
     @Override
@@ -250,9 +263,8 @@ public class Translator extends Visitor {
         visitLuaNode(nameExp);
     }
 
-    @Override
-    public void visit(Exp.ParensExp parensExp) {
-        visitLuaNode(parensExp);
+    public Object visitParensExp(Exp.ParensExp parensExp) {
+        return translate(parensExp.exp);
     }
 
     @Override

@@ -9,9 +9,9 @@ import org.jlua.main.nodes.LuaNode;
  */
 public class LuaBinaryExpression extends LuaExpressionNode {
 
-    private LuaNode leftSide;
-    private LuaNode rightSide;
-    private int operator;
+    protected LuaNode leftSide;
+    protected LuaNode rightSide;
+    protected int operator;
 
     public LuaBinaryExpression(LuaNode leftSide, LuaNode rightSide, int operator) {
         this.leftSide = leftSide;
@@ -25,22 +25,13 @@ public class LuaBinaryExpression extends LuaExpressionNode {
     }
 
     public boolean executeBoolean(VirtualFrame frame){
-       /*
-        Binary operator codes:
-         == 24
-         => 62
-         >  63
-         <= 26
-         <  25
-         ~= 61
-        */
         Object left = leftSide.execute(frame);
         Object right = rightSide.execute(frame);
 
         if (operator == 24) {
-            return left == right;
-        } else if (operator == 61) {
             return left != right;
+        } else if (operator == 61) {
+            return left == right;
         }
 
         if (!(left instanceof Long) || !(right instanceof Long)) {

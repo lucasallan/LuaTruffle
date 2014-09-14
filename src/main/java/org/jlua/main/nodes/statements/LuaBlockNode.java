@@ -8,7 +8,7 @@ import org.jlua.main.nodes.LuaStatementNode;
 /**
  * Created by Lucas Allan Amorim on 2014-09-10.
  */
-public class LuaBlockNode extends LuaStatementNode{
+public class LuaBlockNode extends LuaStatementNode {
 
     @Children private final LuaStatementNode[] bodyNodes;
 

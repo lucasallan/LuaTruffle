@@ -30,6 +30,7 @@ public class Main {
             CallTarget callTarget = Truffle.getRuntime().createCallTarget(root);
 
             System.out.println(callTarget.call());
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

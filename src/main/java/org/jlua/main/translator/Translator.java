@@ -5,9 +5,7 @@ import org.jlua.main.nodes.LuaExpressionNode;
 import org.jlua.main.nodes.LuaNode;
 import org.jlua.main.nodes.LuaStatementNode;
 import org.jlua.main.nodes.expressions.*;
-import org.jlua.main.nodes.operations.arithmetic.LuaAddNodeFactory;
-import org.jlua.main.nodes.operations.arithmetic.LuaDivisionOperationFactory;
-import org.jlua.main.nodes.operations.arithmetic.LuaMultiplicationNodeFactory;
+import org.jlua.main.nodes.operations.arithmetic.*;
 import org.jlua.main.nodes.operations.relational.*;
 import org.jlua.main.nodes.statements.LuaBlockNode;
 import org.jlua.main.nodes.statements.LuaIfNode;
@@ -237,6 +235,10 @@ public class Translator extends Visitor {
                 return LuaMultiplicationNodeFactory.create(left, right);
             case 16:
                 return LuaDivisionOperationFactory.create(left, right);
+            case 14:
+                return LuaSubtractionNodeFactory.create(left, right);
+            case 18:
+                return LuaExponentiationNodeFactory.create(left, right);
         }
         throw new UnsupportedOperationException(String.valueOf(binopExp.op));
     }

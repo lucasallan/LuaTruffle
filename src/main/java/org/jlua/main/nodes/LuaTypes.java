@@ -9,7 +9,7 @@ import org.jlua.main.runtime.LuaNull;
 /**
  * Created by Lucas Allan Amorim on 2014-09-08.
  */
-@TypeSystem({ LuaNode.class, boolean.class, BigInteger.class, String.class, LuaNull.class})
+@TypeSystem({ long.class, BigInteger.class, boolean.class, String.class, LuaNode.class, LuaNull.class})
 public abstract class LuaTypes {
 
     @TypeCheck

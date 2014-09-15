@@ -6,6 +6,8 @@ import org.jlua.main.nodes.LuaExpressionNode;
 import org.jlua.main.nodes.LuaNode;
 import org.jlua.main.nodes.LuaStatementNode;
 import org.jlua.main.nodes.expressions.*;
+import org.jlua.main.nodes.operations.LuaAddNode;
+import org.jlua.main.nodes.operations.LuaAddNodeFactory;
 import org.jlua.main.nodes.statements.LuaBlockNode;
 import org.jlua.main.nodes.statements.LuaIfNode;
 import org.luaj.vm2.ast.*;
@@ -211,11 +213,12 @@ public class Translator extends Visitor {
         System.err.println(binopExp.op);
     }
 
-    public LuaBinaryExpression visitBinoExp(Exp.BinopExp binopExp) {
-        LuaConstantNode left = visitConstant((Exp.Constant) binopExp.lhs);
-        LuaConstantNode right = visitConstant((Exp.Constant) binopExp.rhs);
+    public Object visitBinoExp(Exp.BinopExp binopExp) {
+        LuaExpressionNode left = (LuaExpressionNode) translate( binopExp.lhs);
+        LuaExpressionNode right = (LuaExpressionNode) translate(binopExp.rhs);
 
         if (binopExp.op == 13) {
+            //return LuaAddNodeFactory.create(left, right);
             return new LuaArithmeticExpression(left, right, binopExp.op);
         }
         return new LuaBinaryExpression(left, right, binopExp.op);

@@ -7,6 +7,7 @@ import org.jlua.main.nodes.LuaNode;
 /**
  * Created by Lucas Allan Amorim on 2014-09-11.
  */
+// DEPRECATED
 public class LuaBinaryExpression extends LuaExpressionNode {
 
     protected LuaNode leftSide;
@@ -53,5 +54,10 @@ public class LuaBinaryExpression extends LuaExpressionNode {
             return leftLong < rightLong;
         }
         return false;
+    }
+
+    @Override
+    public Object executeGeneric(VirtualFrame frame) {
+        return executeBoolean(frame);
     }
 }

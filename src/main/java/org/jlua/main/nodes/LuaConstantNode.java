@@ -5,7 +5,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 /**
  * Created by Lucas Allan Amorim on 2014-09-11.
  */
-public class LuaConstantNode extends LuaNode {
+public class LuaConstantNode extends LuaExpressionNode {
 
     private  Object value;
 
@@ -20,5 +20,10 @@ public class LuaConstantNode extends LuaNode {
 
     public String toString(){
         return "Constant: " + value;
+    }
+
+    @Override
+    public Object executeGeneric(VirtualFrame frame) {
+        return execute(frame);
     }
 }

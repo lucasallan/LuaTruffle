@@ -11,15 +11,12 @@ import org.junit.Test;
 import org.luaj.vm2.ast.Chunk;
 import org.luaj.vm2.parser.LuaParser;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 
 /**
  * Created by Lucas Allan Amorim on 2014-09-12.
  */
-public class TranslatorTest extends TestCase {
-
-    protected Translator translator = new Translator();
+public class TranslatorTest extends BaseTranslatorTest {
 
     @Test
     public void testIfThenElse() {
@@ -35,31 +32,10 @@ public class TranslatorTest extends TestCase {
         assertEquals(callTarget.call(), expectResult);
     }
 
-//    @Test
-//    public void testLuaFunctions() {
-//        CallTarget callTarget = createCallTarget(getLuaFile("functions.lua"));
-//        assertEquals(callTarget.call(), 20);
-//
-//    }
-
-    protected CallTarget createCallTarget(String file)  {
-        try {
-            LuaParser parser = new LuaParser(new FileInputStream(file));
-            Chunk chunk = parser.Chunk();
-
-            LuaStatementNode statement = (LuaStatementNode) new Translator().translate(chunk.block);
-            LuaFunctionBody body = new LuaFunctionBody(statement);
-            LuaRootNode root = new LuaRootNode(body);
-            CallTarget callTarget = Truffle.getRuntime().createCallTarget(root);
-
-            return callTarget;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return null;
-        }
+    @Test
+    public void testLuaFunctions() {
+       // CallTarget callTarget = createCallTarget(getLuaFile("functions.lua"));
+       // assertEquals(callTarget.call(), 20);
     }
 
-    protected String getLuaFile(String file) {
-        return getClass().getResource("/" + file).getFile();
-    }
 }

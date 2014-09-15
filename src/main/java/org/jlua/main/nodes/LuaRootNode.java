@@ -9,9 +9,9 @@ import org.jlua.main.nodes.expressions.LuaFunctionBody;
  */
 public class LuaRootNode extends RootNode {
 
-    @Child protected LuaFunctionBody body;
+    @Child protected LuaExpressionNode body;
 
-    public LuaRootNode(LuaFunctionBody body) {
+    public LuaRootNode(LuaExpressionNode body) {
         this.body = body;
     }
 

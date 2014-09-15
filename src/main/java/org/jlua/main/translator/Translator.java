@@ -218,8 +218,8 @@ public class Translator extends Visitor {
         LuaExpressionNode right = (LuaExpressionNode) translate(binopExp.rhs);
 
         if (binopExp.op == 13) {
-            //return LuaAddNodeFactory.create(left, right);
-            return new LuaArithmeticExpression(left, right, binopExp.op);
+            return LuaAddNodeFactory.create(left, right);
+            //return new LuaArithmeticExpression(left, right, binopExp.op);
         }
         return new LuaBinaryExpression(left, right, binopExp.op);
     }

@@ -22,7 +22,7 @@ public class RelationalOperators extends TranslatorTest {
     }
 
     @Test
-    public void testGreateThanrNode(){
+    public void testGreaterThanNode(){
         assertEquals(createCallTarget(createTempFile("return 1 > 1")).call(), false);
         assertEquals(createCallTarget(createTempFile("return 2 > 1")).call(), true);
         assertEquals(createCallTarget(createTempFile("return 1 > 2")).call(), false);

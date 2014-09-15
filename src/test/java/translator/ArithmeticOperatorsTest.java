@@ -17,4 +17,16 @@ public class ArithmeticOperatorsTest extends BaseTranslatorTest {
     public void testAddOperatorsWithString(){
         assertEquals(createCallTarget(createTempFile("return 'Hello' + ' world'")).call(), "Hello world");
     }
+
+    @Test
+    public void testMultiplicationOperatorsWithString(){
+        long expectedValue = 8;
+        assertEquals(createCallTarget(createTempFile("return 2 * 4")).call(), expectedValue);
+    }
+
+    @Test
+    public void testDivisionOperatorsWithString(){
+        long expectedValue = 2;
+        assertEquals(createCallTarget(createTempFile("return 4 / 2")).call(), expectedValue);
+    }
 }

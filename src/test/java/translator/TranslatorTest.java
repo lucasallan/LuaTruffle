@@ -1,18 +1,7 @@
 package translator;
 
 import com.oracle.truffle.api.CallTarget;
-import com.oracle.truffle.api.Truffle;
-import junit.framework.TestCase;
-import org.jlua.main.nodes.LuaRootNode;
-import org.jlua.main.nodes.LuaStatementNode;
-import org.jlua.main.nodes.expressions.LuaFunctionBody;
-import org.jlua.main.translator.Translator;
 import org.junit.Test;
-import org.luaj.vm2.ast.Chunk;
-import org.luaj.vm2.parser.LuaParser;
-
-import java.io.*;
-
 /**
  * Created by Lucas Allan Amorim on 2014-09-12.
  */

@@ -1,4 +1,4 @@
-package org.jlua.main.nodes.operations;
+package org.jlua.main.nodes.operations.arithmetic;
 
 import com.oracle.truffle.api.ExactMath;
 import com.oracle.truffle.api.dsl.Specialization;

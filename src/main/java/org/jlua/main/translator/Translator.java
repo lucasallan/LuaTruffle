@@ -1,13 +1,12 @@
 package org.jlua.main.translator;
 
-import com.oracle.truffle.api.nodes.Node;
 import org.jlua.main.nodes.LuaConstantNode;
 import org.jlua.main.nodes.LuaExpressionNode;
 import org.jlua.main.nodes.LuaNode;
 import org.jlua.main.nodes.LuaStatementNode;
 import org.jlua.main.nodes.expressions.*;
-import org.jlua.main.nodes.operations.LuaAddNode;
-import org.jlua.main.nodes.operations.LuaAddNodeFactory;
+import org.jlua.main.nodes.operations.arithmetic.LuaAddNodeFactory;
+import org.jlua.main.nodes.operations.relational.*;
 import org.jlua.main.nodes.statements.LuaBlockNode;
 import org.jlua.main.nodes.statements.LuaIfNode;
 import org.luaj.vm2.ast.*;
@@ -52,7 +51,7 @@ public class Translator extends Visitor {
 
     public Object visitIfThenElse(Stat.IfThenElse ifThenElse) {
 
-        LuaBinaryExpression expression = (LuaBinaryExpression) translate(ifThenElse.ifexp);
+        LuaExpressionNode expression = (LuaExpressionNode) translate(ifThenElse.ifexp);
         LuaBlockNode elseBlock = null;
         LuaBlockNode ifBlock = null;
 
@@ -217,11 +216,23 @@ public class Translator extends Visitor {
         LuaExpressionNode left = (LuaExpressionNode) translate( binopExp.lhs);
         LuaExpressionNode right = (LuaExpressionNode) translate(binopExp.rhs);
 
-        if (binopExp.op == 13) {
-            return LuaAddNodeFactory.create(left, right);
-            //return new LuaArithmeticExpression(left, right, binopExp.op);
+        switch (binopExp.op) {
+            case 13:
+                return LuaAddNodeFactory.create(left, right);
+            case 24:
+               return LuaEqualsNodeFactory.create(left, right);
+            case 61:
+                return LuaEqualsNodeFactory.create(left, right);
+            case 63:
+                return LuaGreaterThanNodeFactory.create(left, right);
+            case 62:
+                return LuaGreaterOrEqualsNodeFactory.create(left, right);
+            case 26:
+                return LuaLessOrEqualsNodeFactory.create(left, right);
+            case 25:
+                return LuaLessThanNodeFactory.create(left, right);
         }
-        return new LuaBinaryExpression(left, right, binopExp.op);
+        throw new UnsupportedOperationException(String.valueOf(binopExp.op));
     }
 
     @Override

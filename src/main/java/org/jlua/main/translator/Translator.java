@@ -233,7 +233,7 @@ public class Translator extends Visitor {
     public LuaConstantNode visitConstant(Exp.Constant constant){
         Object object;
         if (constant.value.typename().equals("number")){
-            object = constant.value.checkint();
+            object = constant.value.checklong();
         } else {
             object = constant.value.toString();
         }

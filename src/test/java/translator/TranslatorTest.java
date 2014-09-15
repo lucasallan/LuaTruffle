@@ -24,13 +24,15 @@ public class TranslatorTest extends TestCase {
     @Test
     public void testIfThenElse() {
         CallTarget callTarget = createCallTarget(getLuaFile("ifthenelse.lua"));
-        assertEquals(callTarget.call(), 0);
+        long expectResult = 0;
+        assertEquals(callTarget.call(), expectResult);
     }
 
     @Test
     public void testArithmeticOperations() {
         CallTarget callTarget = createCallTarget(getLuaFile("arithmetic_operations.lua"));
-        assertEquals(callTarget.call(), 1);
+        long expectResult = 1;
+        assertEquals(callTarget.call(), expectResult);
     }
 
 //    @Test

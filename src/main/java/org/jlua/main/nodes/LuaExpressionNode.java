@@ -32,10 +32,6 @@ public abstract class LuaExpressionNode extends LuaNode {
         return LuaTypesGen.LUATYPES.expectString(execute(frame));
     }
 
-    public LuaNode executeLuaNode(VirtualFrame frame) throws UnexpectedResultException {
-        return LuaTypesGen.LUATYPES.expectLuaNode(execute(frame));
-    }
-
     public LuaNull executeLuaNull(VirtualFrame frame) throws UnexpectedResultException {
         return LuaTypesGen.LUATYPES.expectLuaNull(execute(frame));
     }

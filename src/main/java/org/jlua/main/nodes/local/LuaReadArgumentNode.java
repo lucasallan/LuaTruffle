@@ -16,7 +16,7 @@ public class LuaReadArgumentNode extends LuaExpressionNode {
     }
 
     @Override
-    public Object executeGeneric(VirtualFrame frame) {
+    public Object execute(VirtualFrame frame) {
         Object[] args = frame.getArguments();
         if (index < args.length) {
             return args[index];
@@ -25,8 +25,4 @@ public class LuaReadArgumentNode extends LuaExpressionNode {
         }
     }
 
-    @Override
-    public Object execute(VirtualFrame frame) {
-        return executeGeneric(frame);
-    }
 }

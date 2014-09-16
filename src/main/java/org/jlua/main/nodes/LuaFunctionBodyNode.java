@@ -26,8 +26,4 @@ public class LuaFunctionBodyNode extends LuaExpressionNode {
         return LuaNull.SINGLETON;
     }
 
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        return execute(frame);
-    }
 }

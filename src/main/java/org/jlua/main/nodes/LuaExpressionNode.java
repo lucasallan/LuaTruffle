@@ -18,29 +18,29 @@ public abstract class LuaExpressionNode extends LuaNode {
 		execute(frame);
 	}
 
-    public abstract Object executeGeneric(VirtualFrame frame);
+    public abstract Object execute(VirtualFrame frame);
 
     public long executeLong(VirtualFrame frame) throws UnexpectedResultException {
-        return LuaTypesGen.LUATYPES.expectLong(executeGeneric(frame));
+        return LuaTypesGen.LUATYPES.expectLong(execute(frame));
     }
 
     public BigInteger executeBigInteger(VirtualFrame frame) throws UnexpectedResultException {
-        return LuaTypesGen.LUATYPES.expectBigInteger(executeGeneric(frame));
+        return LuaTypesGen.LUATYPES.expectBigInteger(execute(frame));
     }
 
     public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
-        return LuaTypesGen.LUATYPES.expectBoolean(executeGeneric(frame));
+        return LuaTypesGen.LUATYPES.expectBoolean(execute(frame));
     }
 
     public String executeString(VirtualFrame frame) throws UnexpectedResultException {
-        return LuaTypesGen.LUATYPES.expectString(executeGeneric(frame));
+        return LuaTypesGen.LUATYPES.expectString(execute(frame));
     }
 
     public LuaNode executeLuaNode(VirtualFrame frame) throws UnexpectedResultException {
-        return LuaTypesGen.LUATYPES.expectLuaNode(executeGeneric(frame));
+        return LuaTypesGen.LUATYPES.expectLuaNode(execute(frame));
     }
 
     public LuaNull executeLuaNull(VirtualFrame frame) throws UnexpectedResultException {
-        return LuaTypesGen.LUATYPES.expectLuaNull(executeGeneric(frame));
+        return LuaTypesGen.LUATYPES.expectLuaNull(execute(frame));
     }
 }

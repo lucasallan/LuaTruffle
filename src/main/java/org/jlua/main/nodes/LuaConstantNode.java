@@ -22,8 +22,4 @@ public class LuaConstantNode extends LuaExpressionNode {
         return "Constant: " + value;
     }
 
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        return execute(frame);
-    }
 }

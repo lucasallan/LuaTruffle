@@ -14,10 +14,6 @@ import java.math.BigInteger;
  */
 public abstract class LuaExpressionNode extends LuaNode {
 
-	public void executeVoid(VirtualFrame frame) {
-		execute(frame);
-	}
-
     public abstract Object execute(VirtualFrame frame);
 
     public long executeLong(VirtualFrame frame) throws UnexpectedResultException {

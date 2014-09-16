@@ -16,6 +16,10 @@ public abstract class LuaNode extends Node {
 
     public abstract Object execute(VirtualFrame frame);
 
+    public void executeVoid(VirtualFrame frame) {
+        execute(frame);
+    }
+
     public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
         return LuaTypesGen.LUATYPES.expectBoolean(execute(frame));
     }

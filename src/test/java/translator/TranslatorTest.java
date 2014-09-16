@@ -14,10 +14,4 @@ public class TranslatorTest extends BaseTranslatorTest {
         long expectResult = 0;
         assertEquals(callTarget.call(), expectResult);
     }
-
-    @Test
-    public void testNilValue() {
-        assertEquals(createCallTarget(createTempFile("return nil")).call(), LuaNull.SINGLETON);
-    }
-
 }

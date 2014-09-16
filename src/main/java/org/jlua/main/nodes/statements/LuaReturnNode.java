@@ -14,7 +14,6 @@ public class LuaReturnNode extends LuaStatementNode {
     private LuaNode valueNode;
 
     public LuaReturnNode(LuaNode valueNode) {
-        super();
         this.valueNode = valueNode;
     }
 

@@ -7,7 +7,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  */
 public class LuaConstantNode extends LuaExpressionNode {
 
-    private  Object value;
+    private final Object value;
 
     public LuaConstantNode(Object value) {
         this.value = value;

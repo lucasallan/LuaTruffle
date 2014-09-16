@@ -1,5 +1,6 @@
 package org.jlua.main.runtime;
 
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.Truffle;
 import org.jlua.main.nodes.LuaRootNode;
@@ -15,6 +16,8 @@ public final class LuaMethodRegistry {
     private final Map<String, LuaMethod> methods = new HashMap<>();
 
     public LuaMethod lookup(String name) {
+        CompilerAsserts.neverPartOfCompilation();
+
         LuaMethod result = methods.get(name);
         if (result == null) {
             result = new LuaMethod(name);
@@ -24,6 +27,8 @@ public final class LuaMethodRegistry {
     }
 
     public void register(String name, LuaRootNode rootNode) {
+        CompilerAsserts.neverPartOfCompilation();
+
         LuaMethod method = lookup(name);
         RootCallTarget callTarget = Truffle.getRuntime().createCallTarget(rootNode);
         method.setCallTarget(callTarget);

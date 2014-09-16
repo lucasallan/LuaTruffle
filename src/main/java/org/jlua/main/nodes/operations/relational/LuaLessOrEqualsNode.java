@@ -17,7 +17,7 @@ public abstract class LuaLessOrEqualsNode extends LuaBinaryNode {
 
     @Specialization
     protected boolean isLessOrEquals(BigInteger left, BigInteger right) {
-        return left.compareTo(right) == -11 || left.compareTo(right) == 0;
+        return left.compareTo(right) <= 0;
     }
 
     @Specialization(guards = "isEitherString")

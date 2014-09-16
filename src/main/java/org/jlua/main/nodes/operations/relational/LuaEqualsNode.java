@@ -21,12 +21,8 @@ public abstract class LuaEqualsNode extends LuaBinaryNode {
         return left.equals(right);
     }
 
-    @Specialization(guards = "isString")
+    @Specialization(guards = "isEitherString")
     protected boolean isEquals(Object left, Object right) {
         return left.toString().equals(right.toString());
-    }
-
-    protected boolean isString(Object a, Object b) {
-        return a instanceof String || b instanceof String;
     }
 }

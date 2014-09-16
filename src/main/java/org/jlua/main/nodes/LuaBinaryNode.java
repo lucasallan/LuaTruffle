@@ -9,4 +9,9 @@ import com.oracle.truffle.api.frame.VirtualFrame;
  */
 @NodeChildren({@NodeChild("leftNode"), @NodeChild("rightNode")})
 public abstract class LuaBinaryNode extends LuaExpressionNode {
+
+    protected boolean isEitherString(Object a, Object b) {
+        return a instanceof String || b instanceof String;
+    }
+
 }

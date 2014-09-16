@@ -20,12 +20,9 @@ public abstract class LuaGreaterOrEqualsNode extends LuaBinaryNode {
         return left.compareTo(right) == 1 || left.compareTo(right) == 0;
     }
 
-    @Specialization(guards = "isString")
+    @Specialization(guards = "isEitherString")
     protected boolean isGreaterOrEquals(Object left, Object right) {
         return left.toString().length() >= right.toString().length();
     }
 
-    protected boolean isString(Object a, Object b) {
-        return a instanceof String || b instanceof String;
-    }
 }

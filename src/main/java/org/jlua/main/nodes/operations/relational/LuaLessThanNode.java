@@ -20,12 +20,9 @@ public abstract class LuaLessThanNode extends LuaBinaryNode {
         return left.compareTo(right) == -1;
     }
 
-    @Specialization(guards = "isString")
+    @Specialization(guards = "isEitherString")
     protected boolean isLessThan(Object left, Object right) {
         return left.toString().length() < right.toString().length();
     }
 
-    protected boolean isString(Object a, Object b) {
-        return a instanceof String || b instanceof String;
-    }
 }

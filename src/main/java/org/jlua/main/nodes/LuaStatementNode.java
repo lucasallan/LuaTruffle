@@ -1,5 +1,6 @@
 package org.jlua.main.nodes;
 
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.nodes.*;
@@ -9,12 +10,11 @@ import com.oracle.truffle.api.nodes.*;
  */
 public abstract class LuaStatementNode extends LuaNode {
 
-	public abstract void executeVoid(VirtualFrame frame);
-
     @Override
     public Object execute(VirtualFrame frame) {
-        executeVoid(frame);
-        return null;
+        final String message = "Statements never return results";
+        CompilerAsserts.neverPartOfCompilation(message);
+        throw new UnsupportedOperationException(message);
     }
-    
+
 }

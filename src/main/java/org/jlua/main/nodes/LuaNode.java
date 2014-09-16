@@ -5,6 +5,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import org.jlua.main.nodes.LuaTypesGen;
+import org.jlua.main.runtime.LuaNull;
 
 import java.math.BigInteger;
 
@@ -24,7 +25,20 @@ public abstract class LuaNode extends Node {
         return LuaTypesGen.LUATYPES.expectBoolean(execute(frame));
     }
 
+    public long executeLong(VirtualFrame frame) throws UnexpectedResultException {
+        return LuaTypesGen.LUATYPES.expectLong(execute(frame));
+    }
+
     public BigInteger executeBigInteger(VirtualFrame frame) throws UnexpectedResultException {
         return LuaTypesGen.LUATYPES.expectBigInteger(execute(frame));
     }
+
+    public String executeString(VirtualFrame frame) throws UnexpectedResultException {
+        return LuaTypesGen.LUATYPES.expectString(execute(frame));
+    }
+
+    public LuaNull executeLuaNull(VirtualFrame frame) throws UnexpectedResultException {
+        return LuaTypesGen.LUATYPES.expectLuaNull(execute(frame));
+    }
+
 }

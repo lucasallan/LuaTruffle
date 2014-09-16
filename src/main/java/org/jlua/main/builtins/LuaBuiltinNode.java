@@ -9,7 +9,6 @@ import org.jlua.main.nodes.LuaExpressionNode;
  * Created by Lucas Allan Amorim on 2014-09-14.
  */
 @NodeChild(value = "arguments", type = LuaExpressionNode[].class)
-@NodeInfo(shortName = "println")
 public abstract class LuaBuiltinNode extends LuaExpressionNode {
 
 }

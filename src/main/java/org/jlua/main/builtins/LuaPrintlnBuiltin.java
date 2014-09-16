@@ -2,10 +2,12 @@ package org.jlua.main.builtins;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.nodes.NodeInfo;
 
 /**
  * Created by Lucas Allan Amorim on 2014-09-14.
  */
+@NodeInfo(shortName = "println")
 public abstract class LuaPrintlnBuiltin extends LuaBuiltinNode {
 
     @CompilerDirectives.SlowPath

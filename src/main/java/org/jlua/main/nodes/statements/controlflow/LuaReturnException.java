@@ -1,4 +1,4 @@
-package org.jlua.main.nodes.expressions;
+package org.jlua.main.nodes.statements.controlflow;
 
 import com.oracle.truffle.api.nodes.ControlFlowException;
 

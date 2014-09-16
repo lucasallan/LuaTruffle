@@ -19,7 +19,7 @@ public class Main {
 
 	public static void main(String args[]) {
 		try {
-		    String file = "src/test/resources/ifthenelse.lua";
+		    String file = "src/test/resources/functions.lua";
 			LuaParser parser = new LuaParser(new FileInputStream(file));
 			Chunk chunk = parser.Chunk();
 

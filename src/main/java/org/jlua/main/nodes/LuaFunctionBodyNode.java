@@ -1,7 +1,7 @@
 package org.jlua.main.nodes;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import org.jlua.main.nodes.expressions.LuaReturnException;
+import org.jlua.main.nodes.statements.controlflow.LuaReturnException;
 import org.jlua.main.runtime.LuaNull;
 
 /**

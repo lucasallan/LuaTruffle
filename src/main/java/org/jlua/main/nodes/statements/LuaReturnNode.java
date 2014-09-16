@@ -1,10 +1,9 @@
-package org.jlua.main.nodes.expressions;
+package org.jlua.main.nodes.statements;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.Node;
-import org.jlua.main.nodes.LuaExpressionNode;
 import org.jlua.main.nodes.LuaNode;
 import org.jlua.main.nodes.LuaStatementNode;
+import org.jlua.main.nodes.statements.controlflow.LuaReturnException;
 
 /**
  * Created by Lucas Allan Amorim on 2014-09-10.

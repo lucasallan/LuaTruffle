@@ -1,19 +1,22 @@
 package org.jlua.main.translator;
 
+import com.oracle.truffle.api.frame.FrameDescriptor;
 import org.jlua.main.nodes.LuaConstantNode;
 import org.jlua.main.nodes.LuaExpressionNode;
 import org.jlua.main.nodes.LuaNode;
 import org.jlua.main.nodes.LuaStatementNode;
-import org.jlua.main.nodes.expressions.*;
+import org.jlua.main.nodes.local.LuaWriteLocalVariableNodeFactory;
 import org.jlua.main.nodes.operations.arithmetic.*;
 import org.jlua.main.nodes.operations.relational.*;
 import org.jlua.main.nodes.statements.LuaBlockNode;
 import org.jlua.main.nodes.statements.LuaIfNode;
+import org.jlua.main.nodes.statements.LuaReturnNode;
+import org.jlua.main.nodes.statements.LuaWhileDoNode;
+import org.jlua.main.runtime.LuaNull;
+import org.luaj.vm2.LuaNil;
 import org.luaj.vm2.ast.*;
 import org.luaj.vm2.ast.Stat.LocalAssign;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -21,6 +24,12 @@ import java.util.List;
  */
 
 public class Translator extends Visitor {
+
+    private FrameDescriptor frameDescriptor;
+
+    public Translator() {
+        frameDescriptor = new FrameDescriptor();
+    }
 
     // TODO needs a good cleaup
     public Object translate(Object object) {
@@ -42,11 +51,21 @@ public class Translator extends Visitor {
             return visitFuncCallStat((Stat.FuncCallStat) object);
         } else if (object instanceof Exp.ParensExp) {
             return visitParensExp((Exp.ParensExp) object);
+        } else if (object instanceof  Stat.WhileDo ) {
+            return visitWhileDo((Stat.WhileDo) object);
+        } else if (object instanceof Stat.LocalAssign) {
+            return visitLocalAssign((Stat.LocalAssign) object);
         } else {
             System.err.println("Needs be handled: " + object.getClass().getName());
             return null;
         }
 
+    }
+
+    private Object visitWhileDo(Stat.WhileDo whileDo) {
+        LuaExpressionNode expression = (LuaExpressionNode) translate(whileDo.exp);
+        LuaBlockNode whileBlock = (LuaBlockNode) translate(whileDo.block);
+        return new LuaWhileDoNode(expression, whileBlock);
     }
 
     public Object visitIfThenElse(Stat.IfThenElse ifThenElse) {
@@ -98,7 +117,12 @@ public class Translator extends Visitor {
             LuaStatementNode blocks[] = new LuaStatementNode[block.stats.size()];
 
             for (int i = 0, n = block.stats.size(); i < n; i++) {
-                blocks[i] = (LuaStatementNode) translate((Stat) block.stats.get(i));//.accept(this);
+                Object returnedBlock = translate(block.stats.get(i));
+                if (returnedBlock instanceof LuaStatementNode) {
+                    blocks[i] = (LuaStatementNode) returnedBlock;
+                } else {
+                    handleUnknown(returnedBlock);
+                }
             }
 
             blockNode = new LuaBlockNode(blocks);
@@ -137,15 +161,15 @@ public class Translator extends Visitor {
         visitLuaNode(genericFor);
     }
 
-    public void visitLocalAssign(LocalAssign localAssign) {
+    public Object visitLocalAssign(LocalAssign localAssign) {
 
-        List<Object> values = new ArrayList<Object>();
-        List<String> names = new ArrayList<String>();
-
-        HashMap<String, Object> variables = new HashMap<String, Object>();
+        // For now, returns only the first assignment
         for(int i = 0; i< localAssign.values.size(); i++) {
-            variables.put((String) visitNode(localAssign.names.get(i)), translate(localAssign.values.get(i)));
+            LuaExpressionNode luaExpressionNode = (LuaExpressionNode) translate(localAssign.values.get(i));
+            return LuaWriteLocalVariableNodeFactory.create(luaExpressionNode, frameDescriptor.findOrAddFrameSlot(localAssign.names.get(i)));
         }
+
+        return null;
     }
 
     @Override
@@ -250,14 +274,15 @@ public class Translator extends Visitor {
 
 
     public LuaConstantNode visitConstant(Exp.Constant constant){
-        Object object;
         if (constant.value.typename().equals("number")){
-            object = constant.value.checklong();
-        } else {
-            object = constant.value.toString();
+            return new LuaConstantNode(constant.value.checklong());
+        } else if (constant.value.typename().equals("nil")) {
+            return new LuaConstantNode(LuaNull.SINGLETON);
+        } else if (constant.value.typename().equals("string")){
+            return new LuaConstantNode(constant.value.toString());
         }
-
-        return new LuaConstantNode(object);
+        // needs to handle others lua types
+        throw  new UnsupportedOperationException(constant.value.typename());
     }
 
     @Override

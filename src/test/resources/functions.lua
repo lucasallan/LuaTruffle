@@ -1,5 +1,2 @@
-function return20()
-  return 20
-end
-
-return20()
+local num = 20
+return num

@@ -64,7 +64,7 @@ public class LuaContext extends ExecutionContext {
     }
 
     public void executeMain(Chunk chunk) {
-        LuaStatementNode statement = (LuaStatementNode) new Translator().translate(chunk.block);
+        LuaStatementNode statement = (LuaStatementNode) new Translator(this).translate(chunk.block);
         LuaFunctionBody body = new LuaFunctionBody(statement);
         LuaRootNode root = new LuaRootNode(body);
         CallTarget callTarget = Truffle.getRuntime().createCallTarget(root);

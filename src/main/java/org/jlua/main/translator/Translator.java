@@ -12,6 +12,7 @@ import org.jlua.main.nodes.statements.LuaBlockNode;
 import org.jlua.main.nodes.statements.LuaIfNode;
 import org.jlua.main.nodes.statements.LuaReturnNode;
 import org.jlua.main.nodes.statements.LuaWhileDoNode;
+import org.jlua.main.runtime.LuaContext;
 import org.jlua.main.runtime.LuaNull;
 import org.luaj.vm2.LuaNil;
 import org.luaj.vm2.ast.*;
@@ -26,9 +27,11 @@ import java.util.List;
 public class Translator extends Visitor {
 
     private FrameDescriptor frameDescriptor;
+    private LuaContext context;
 
-    public Translator() {
+    public Translator(LuaContext context) {
         frameDescriptor = new FrameDescriptor();
+        this.context = context;
     }
 
     // TODO needs a good cleaup
@@ -191,7 +194,7 @@ public class Translator extends Visitor {
 
     @Override
     public void visit(Stat.RepeatUntil repeatUntil) {
-        System.err.println("Visitor: " +repeatUntil.getClass().getName());
+        System.err.println("Visitor: " + repeatUntil.getClass().getName());
         visitLuaNode(repeatUntil);
     }
 

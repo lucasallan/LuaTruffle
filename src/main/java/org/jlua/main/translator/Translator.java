@@ -28,6 +28,7 @@ public class Translator extends Visitor {
 
     private FrameDescriptor frameDescriptor;
     private LuaContext context;
+    private Object rootNode;
 
     public Translator(LuaContext context) {
         frameDescriptor = new FrameDescriptor();
@@ -60,7 +61,7 @@ public class Translator extends Visitor {
             return visitLocalAssign((Stat.LocalAssign) object);
         } else {
             System.err.println("Needs be handled: " + object.getClass().getName());
-            return null;
+            return rootNode;
         }
 
     }
@@ -130,6 +131,7 @@ public class Translator extends Visitor {
 
             blockNode = new LuaBlockNode(blocks);
         }
+        setRootBlock(blockNode);
         return blockNode;
     }
 
@@ -402,6 +404,12 @@ public class Translator extends Visitor {
             visit((Name) ob);
         } else {
             System.out.println("FuncArgs - Unknown type: " +ob.getClass().getName());
+        }
+    }
+
+    public void setRootBlock(Object object) {
+        if (rootNode == null) {
+            this.rootNode = object;
         }
     }
 

@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 import org.jlua.main.nodes.LuaRootNode;
 import org.jlua.main.nodes.LuaStatementNode;
 import org.jlua.main.nodes.expressions.LuaFunctionBody;
+import org.jlua.main.runtime.LuaContext;
 import org.jlua.main.translator.Translator;
 import org.luaj.vm2.ast.Chunk;
 import org.luaj.vm2.parser.LuaParser;
@@ -16,14 +17,14 @@ import java.io.*;
  * Created by Lucas Allan Amorim on 2014-09-15.
  */
 public abstract class BaseTranslatorTest extends TestCase {
-    protected Translator translator = new Translator();
+    protected Translator translator = new Translator(new LuaContext());
 
     protected CallTarget createCallTarget(String file)  {
         try {
             LuaParser parser = new LuaParser(new FileInputStream(file));
             Chunk chunk = parser.Chunk();
 
-            LuaStatementNode statement = (LuaStatementNode) new Translator().translate(chunk.block);
+            LuaStatementNode statement = (LuaStatementNode) translator.translate(chunk.block);
             LuaFunctionBody body = new LuaFunctionBody(statement);
             LuaRootNode root = new LuaRootNode(body);
             CallTarget callTarget = Truffle.getRuntime().createCallTarget(root);

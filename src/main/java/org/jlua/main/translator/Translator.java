@@ -230,4 +230,7 @@ public class Translator extends Visitor {
         }
     }
 
+    public FrameDescriptor getFrameDescriptor() {
+        return frameDescriptor;
+    }
 }

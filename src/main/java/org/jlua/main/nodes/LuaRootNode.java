@@ -1,5 +1,6 @@
 package org.jlua.main.nodes;
 
+import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 import org.jlua.main.nodes.expressions.LuaFunctionBody;
@@ -11,7 +12,8 @@ public class LuaRootNode extends RootNode {
 
     @Child protected LuaExpressionNode body;
 
-    public LuaRootNode(LuaExpressionNode body) {
+    public LuaRootNode(LuaExpressionNode body, FrameDescriptor frameDescriptor) {
+        super(null, frameDescriptor);
         this.body = body;
     }
 

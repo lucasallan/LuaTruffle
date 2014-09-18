@@ -48,7 +48,7 @@ public class LuaContext extends ExecutionContext {
         LuaBuiltinNode builtinBodyNode = factory.createNode(argumentNodes, this);
         String name = builtinBodyNode.getClass().getAnnotation(NodeInfo.class).shortName();
 
-        LuaRootNode rootNode = new LuaRootNode(builtinBodyNode);
+        LuaRootNode rootNode = new LuaRootNode(builtinBodyNode, null);
 
         luaMethodRegistry.register(name, rootNode);
     }
@@ -64,9 +64,10 @@ public class LuaContext extends ExecutionContext {
     }
 
     public void executeMain(Chunk chunk) {
-        LuaStatementNode statement = (LuaStatementNode) new Translator(this).translate(chunk.block);
+        final Translator translator = new Translator(this);
+        LuaStatementNode statement = (LuaStatementNode) translator.translate(chunk.block);
         LuaFunctionBody body = new LuaFunctionBody(statement);
-        LuaRootNode root = new LuaRootNode(body);
+        LuaRootNode root = new LuaRootNode(body, translator.getFrameDescriptor());
         CallTarget callTarget = Truffle.getRuntime().createCallTarget(root);
 
         System.out.println(callTarget.call());

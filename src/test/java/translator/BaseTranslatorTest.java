@@ -17,16 +17,16 @@ import java.io.*;
  * Created by Lucas Allan Amorim on 2014-09-15.
  */
 public abstract class BaseTranslatorTest extends TestCase {
-    protected Translator translator = new Translator(new LuaContext());
 
     protected CallTarget createCallTarget(String file)  {
         try {
+            Translator translator = new Translator(new LuaContext());
             LuaParser parser = new LuaParser(new FileInputStream(file));
             Chunk chunk = parser.Chunk();
 
             LuaStatementNode statement = (LuaStatementNode) translator.translate(chunk.block);
             LuaFunctionBody body = new LuaFunctionBody(statement);
-            LuaRootNode root = new LuaRootNode(body);
+            LuaRootNode root = new LuaRootNode(body, translator.getFrameDescriptor());
             CallTarget callTarget = Truffle.getRuntime().createCallTarget(root);
 
             return callTarget;

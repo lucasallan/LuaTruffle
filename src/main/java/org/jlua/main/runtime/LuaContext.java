@@ -70,6 +70,5 @@ public class LuaContext extends ExecutionContext {
         CallTarget callTarget = Truffle.getRuntime().createCallTarget(root);
 
         System.out.println(callTarget.call());
-
     }
 }

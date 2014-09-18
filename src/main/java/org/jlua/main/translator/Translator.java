@@ -5,6 +5,7 @@ import org.jlua.main.nodes.LuaConstantNode;
 import org.jlua.main.nodes.LuaExpressionNode;
 import org.jlua.main.nodes.LuaNode;
 import org.jlua.main.nodes.LuaStatementNode;
+import org.jlua.main.nodes.local.LuaReadLocalVariableNodeFactory;
 import org.jlua.main.nodes.local.LuaWriteLocalVariableNodeFactory;
 import org.jlua.main.nodes.operations.arithmetic.*;
 import org.jlua.main.nodes.operations.relational.*;
@@ -59,11 +60,23 @@ public class Translator extends Visitor {
             return visitWhileDo((Stat.WhileDo) object);
         } else if (object instanceof Stat.LocalAssign) {
             return visitLocalAssign((Stat.LocalAssign) object);
+        } else if (object instanceof Exp.NameExp) {
+            return visitLocalNameExp((Exp.NameExp) object);
         } else {
-            System.err.println("Needs be handled: " + object.getClass().getName());
+            if (object != null) {
+                System.err.println("Needs be handled: " + object.getClass().getName());
+            }
             return rootNode;
         }
 
+    }
+
+    private Object visitLocalNameExp(Exp.NameExp nameExp) {
+        return visitName(nameExp.name);
+    }
+
+    private Object visitName(Name name) {
+        return LuaReadLocalVariableNodeFactory.create(frameDescriptor.findFrameSlot(name.name));
     }
 
     private Object visitWhileDo(Stat.WhileDo whileDo) {
@@ -96,18 +109,6 @@ public class Translator extends Visitor {
         // TODO Handle elseIfs
         return new LuaIfNode(expression, elseBlock, ifBlock);
     }
-    @Override
-    public void visit(Stat.Assign assign) {
-        visitLuaNode(assign);
-
-        for (Object ob : assign.vars){
-
-            Exp.NameExp var = (Exp.NameExp) ob;
-            var.accept(this);
-            System.err.println("Var Assignment: " + var.name.name + " " + var.name.variable);
-
-        }
-    }
 
     public LuaBlockNode visitChunk(Chunk chunk) {
         return visitBlock(chunk.block);
@@ -124,8 +125,6 @@ public class Translator extends Visitor {
                 Object returnedBlock = translate(block.stats.get(i));
                 if (returnedBlock instanceof LuaStatementNode) {
                     blocks[i] = (LuaStatementNode) returnedBlock;
-                } else {
-                    handleUnknown(returnedBlock);
                 }
             }
 
@@ -135,35 +134,14 @@ public class Translator extends Visitor {
         return blockNode;
     }
 
-    @Override
-    public void visit(Stat.Break aBreak) {
-        visitLuaNode(aBreak);
-    }
-
-    @Override
-    public void visit(Stat.FuncCallStat funcCallStat) {
-        visitLuaNode(funcCallStat);
-    }
-
-    @Override
-    public void visit(Stat.FuncDef funcDef) {
-        System.err.println(funcDef.name.name.name);
-        funcDef.body.accept(this);
-        visitLuaNode(funcDef);
-    }
-
     public Object visitFuncDef(Stat.FuncDef funcDef) {
 
-        return null;
+        throw new UnsupportedOperationException(String.valueOf("FuncDef"));
     }
 
     public Object visitFuncCallStat(Stat.FuncCallStat funcCallStat) {
-        return null;
-    }
 
-    @Override
-    public void visit(Stat.GenericFor genericFor) {
-        visitLuaNode(genericFor);
+        throw new UnsupportedOperationException(String.valueOf("FuncCallStat"));
     }
 
     public Object visitLocalAssign(LocalAssign localAssign) {
@@ -174,41 +152,14 @@ public class Translator extends Visitor {
             return LuaWriteLocalVariableNodeFactory.create(luaExpressionNode, frameDescriptor.findOrAddFrameSlot(localAssign.names.get(i)));
         }
 
-        return null;
-    }
-
-    @Override
-    public void visit(Stat.LocalFuncDef localFuncDef) {
-        localFuncDef.accept(this);
-        localFuncDef.body.accept(this);
-        visitLuaNode(localFuncDef);
-    }
-
-    @Override
-    public void visit(Stat.NumericFor numericFor) {
-        numericFor.accept(this);
-        numericFor.block.accept(this);
-        numericFor.initial.accept(this);
-        numericFor.step.accept(this);
-        numericFor.limit.accept(this);
-        visitLuaNode(numericFor);
-    }
-
-    @Override
-    public void visit(Stat.RepeatUntil repeatUntil) {
-        System.err.println("Visitor: " + repeatUntil.getClass().getName());
-        visitLuaNode(repeatUntil);
+        throw new UnsupportedOperationException(String.valueOf(localAssign));
     }
 
     public LuaReturnNode visitReturn(Stat.Return aReturn) {
         //System.out.println(aReturn.nreturns()); //might have more than one return
+        System.out.println("Translator.visitReturn");
         Object objectReturned = translate(aReturn.values.get(0));
         return new LuaReturnNode((LuaNode) objectReturned);
-    }
-
-    @Override
-    public void visit(Stat.WhileDo whileDo) {
-        visitLuaNode(whileDo);
     }
 
     @Override
@@ -216,30 +167,6 @@ public class Translator extends Visitor {
         funcBody.block.accept(this);
         funcBody.parlist.accept(this);
      }
-
-    @Override
-    public void visit(FuncArgs funcArgs) {
-        funcArgs.accept(this);
-        for (Object ob : funcArgs.exps){
-            handleUnknown(ob);
-        }
-    }
-
-    @Override
-    public void visit(TableField tableField) {
-        tableField.accept(this);
-        tableField.index.accept(this);
-        tableField.rhs.accept(this);
-    }
-
-    @Override
-    public void visit(Exp.AnonFuncDef anonFuncDef) {
-        visitLuaNode(anonFuncDef);
-    }
-
-    public void visit(Exp.BinopExp binopExp) {
-        System.err.println(binopExp.op);
-    }
 
     public Object visitBinoExp(Exp.BinopExp binopExp) {
         LuaExpressionNode left = (LuaExpressionNode) translate( binopExp.lhs);
@@ -290,121 +217,8 @@ public class Translator extends Visitor {
         throw  new UnsupportedOperationException(constant.value.typename());
     }
 
-    @Override
-    public void visit(Exp.FieldExp fieldExp) {
-        visitLuaNode(fieldExp);
-    }
-
-    @Override
-    public void visit(Exp.FuncCall funcCall) {
-        visitLuaNode(funcCall);
-    }
-
-    @Override
-    public void visit(Exp.IndexExp indexExp) {
-        visitLuaNode(indexExp);
-    }
-
-    @Override
-    public void visit(Exp.MethodCall methodCall) {
-        visitLuaNode(methodCall);
-    }
-
-    @Override
-    public void visit(Exp.NameExp nameExp) {
-        visitLuaNode(nameExp);
-    }
-
     public Object visitParensExp(Exp.ParensExp parensExp) {
         return translate(parensExp.exp);
-    }
-
-    @Override
-    public void visit(Exp.UnopExp unopExp) {
-        visitLuaNode(unopExp);
-    }
-
-    @Override
-    public void visit(Exp.VarargsExp varargsExp) {
-        visitLuaNode(varargsExp);
-    }
-
-    @Override
-    public void visit(ParList parList) {
-        for (Object ob : parList.names){
-            handleUnknown(ob);
-        }
-    }
-
-    @Override
-    public void visit(TableConstructor tableConstructor) {
-        visitLuaNode(tableConstructor);
-    }
-
-    @Override
-    public void visitVars(List list) {
-        System.err.println("List size: " + list.size());
-    }
-
-
-    @Override
-    public void visit(Name name) {
-        System.out.println("Visit Name: " + name.name);
-    }
-
-    @Override
-    public void visit(String s) {
-        System.out.println("String Name: " + s);
-    }
-
-    @Override
-    public void visit(NameScope nameScope) {
-        visitLuaNode(nameScope);
-    }
-
-    @Override
-    public void visit(Stat.Goto aGoto) {
-        visitLuaNode(aGoto);
-    }
-
-    @Override
-    public void visit(Stat.Label label) {
-        visitLuaNode(label);
-    }
-
-    private void visitLuaNode(Stat node) {
-        System.err.println("Visitor: " +node.getClass().getName() + " Line: " + node.beginLine);
-    }
-
-    private Object visitNode(Object ob) {
-        if (ob instanceof Exp.Constant) {
-            return visitConstant((Exp.Constant)ob);
-        } else if (ob instanceof Name) {
-            return ((Name) ob).name;
-        }
-        return null;
-    }
-
-    private void visitLuaNode(Exp node){
-        System.err.println("Visitor: " +node.getClass().getName() + " Line: " + node.beginLine);
-    }
-
-    private void visitLuaNode(NameScope node){
-        if (node != null) {
-            System.err.println("Visitor: " + node.getClass().getName());
-        }
-    }
-
-    private void handleUnknown(Object ob) {
-        if (ob instanceof Exp){
-            ((Exp) ob).accept(this);
-        } else if (ob instanceof Stat) {
-            ((Stat) ob).accept(this);
-        } else if (ob instanceof Name) {
-            visit((Name) ob);
-        } else {
-            System.out.println("FuncArgs - Unknown type: " +ob.getClass().getName());
-        }
     }
 
     public void setRootBlock(Object object) {

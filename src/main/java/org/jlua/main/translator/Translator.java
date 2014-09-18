@@ -4,18 +4,13 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import org.jlua.main.nodes.LuaConstantNode;
 import org.jlua.main.nodes.LuaExpressionNode;
 import org.jlua.main.nodes.LuaNode;
-import org.jlua.main.nodes.LuaStatementNode;
 import org.jlua.main.nodes.local.LuaReadLocalVariableNodeFactory;
 import org.jlua.main.nodes.local.LuaWriteLocalVariableNodeFactory;
 import org.jlua.main.nodes.operations.arithmetic.*;
 import org.jlua.main.nodes.operations.relational.*;
-import org.jlua.main.nodes.statements.LuaBlockNode;
-import org.jlua.main.nodes.statements.LuaIfNode;
-import org.jlua.main.nodes.statements.LuaReturnNode;
-import org.jlua.main.nodes.statements.LuaWhileDoNode;
+import org.jlua.main.nodes.statements.*;
 import org.jlua.main.runtime.LuaContext;
 import org.jlua.main.runtime.LuaNull;
-import org.luaj.vm2.LuaNil;
 import org.luaj.vm2.ast.*;
 import org.luaj.vm2.ast.Stat.LocalAssign;
 
@@ -88,48 +83,56 @@ public class Translator extends Visitor {
     public Object visitIfThenElse(Stat.IfThenElse ifThenElse) {
 
         LuaExpressionNode expression = (LuaExpressionNode) translate(ifThenElse.ifexp);
-        LuaBlockNode elseBlock = null;
-        LuaBlockNode ifBlock = null;
+        LuaNode elseBlock;
+        LuaNode ifBlock;
 
         if (ifThenElse.elseblock != null) {
-            LuaStatementNode[] elseBlocks = new LuaStatementNode[ifThenElse.elseblock.stats.size()];
+            LuaNode[] elseBlocks = new LuaNode[ifThenElse.elseblock.stats.size()];
             for (int i = 0; i < ifThenElse.elseblock.stats.size(); i++) {
-                elseBlocks[i] = (LuaStatementNode) translate(ifThenElse.elseblock.stats.get(i));
+                elseBlocks[i] = (LuaNode) translate(ifThenElse.elseblock.stats.get(i));
             }
             elseBlock = new LuaBlockNode(elseBlocks);
+        } else {
+            elseBlock = new LuaNopNode();
         }
+
         if (ifThenElse.ifblock != null) {
-            LuaStatementNode[] ifBlocks = new LuaStatementNode[ifThenElse.ifblock.stats.size()];
+            LuaNode[] ifBlocks = new LuaNode[ifThenElse.ifblock.stats.size()];
             for (int i = 0; i < ifThenElse.ifblock.stats.size(); i++) {
-                ifBlocks[i] = (LuaStatementNode) translate(ifThenElse.ifblock.stats.get(i));
+                ifBlocks[i] = (LuaNode) translate(ifThenElse.ifblock.stats.get(i));
             }
             ifBlock = new LuaBlockNode(ifBlocks);
+        } else {
+            ifBlock = new LuaNopNode();
         }
 
         // TODO Handle elseIfs
         return new LuaIfNode(expression, elseBlock, ifBlock);
     }
 
-    public LuaBlockNode visitChunk(Chunk chunk) {
+    public LuaNode visitChunk(Chunk chunk) {
         return visitBlock(chunk.block);
     }
 
-    public LuaBlockNode visitBlock(Block block){
+    public LuaNode visitBlock(Block block){
         //visit(block.scope);
-        LuaBlockNode blockNode = null;
+        LuaNode blockNode;
 
         if ( block.stats != null ) {
-            LuaStatementNode blocks[] = new LuaStatementNode[block.stats.size()];
+            LuaNode blocks[] = new LuaNode[block.stats.size()];
 
             for (int i = 0, n = block.stats.size(); i < n; i++) {
                 Object returnedBlock = translate(block.stats.get(i));
-                if (returnedBlock instanceof LuaStatementNode) {
-                    blocks[i] = (LuaStatementNode) returnedBlock;
+                if (returnedBlock instanceof LuaNode) {
+                    blocks[i] = (LuaNode) returnedBlock;
                 }
             }
 
             blockNode = new LuaBlockNode(blocks);
+        } else {
+            blockNode = new LuaNopNode();
         }
+
         setRootBlock(blockNode);
         return blockNode;
     }

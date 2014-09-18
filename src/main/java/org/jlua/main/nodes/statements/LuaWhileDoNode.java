@@ -4,6 +4,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import org.jlua.main.nodes.LuaExpressionNode;
+import org.jlua.main.nodes.LuaNode;
 import org.jlua.main.nodes.LuaStatementNode;
 import org.jlua.main.nodes.statements.controlflow.LuaBreakException;
 
@@ -16,9 +17,9 @@ public class LuaWhileDoNode extends LuaStatementNode {
     @Child
     private LuaExpressionNode conditionNode;
     @Child
-    private LuaStatementNode blockNode;
+    private LuaNode blockNode;
 
-    public LuaWhileDoNode(LuaExpressionNode conditionNode, LuaStatementNode blockNode) {
+    public LuaWhileDoNode(LuaExpressionNode conditionNode, LuaNode blockNode) {
         this.conditionNode = conditionNode;
         this.blockNode = blockNode;
     }

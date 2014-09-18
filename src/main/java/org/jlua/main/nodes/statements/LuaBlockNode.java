@@ -3,6 +3,7 @@ package org.jlua.main.nodes.statements;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.source.SourceSection;
+import org.jlua.main.nodes.LuaNode;
 import org.jlua.main.nodes.LuaStatementNode;
 
 /**
@@ -10,16 +11,16 @@ import org.jlua.main.nodes.LuaStatementNode;
  */
 public class LuaBlockNode extends LuaStatementNode {
 
-    @Children private final LuaStatementNode[] bodyNodes;
+    @Children private final LuaNode[] bodyNodes;
 
-    public LuaBlockNode(LuaStatementNode[] nodes) {
+    public LuaBlockNode(LuaNode[] nodes) {
         this.bodyNodes = nodes;
     }
 
     @ExplodeLoop
     @Override
     public void executeVoid(VirtualFrame frame) {
-        for (LuaStatementNode node : bodyNodes) {
+        for (LuaNode node : bodyNodes) {
             node.executeVoid(frame);
         }
 

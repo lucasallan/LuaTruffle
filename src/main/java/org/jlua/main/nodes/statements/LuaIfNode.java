@@ -2,6 +2,7 @@ package org.jlua.main.nodes.statements;
 
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import org.jlua.main.nodes.LuaExpressionNode;
+import org.jlua.main.nodes.LuaNode;
 import org.jlua.main.nodes.LuaStatementNode;
 
 import com.oracle.truffle.api.CompilerDirectives;
@@ -19,9 +20,9 @@ public class LuaIfNode extends LuaStatementNode {
 	@Child
 	private LuaExpressionNode conditionNode;
 	@Child
-	private LuaStatementNode thenPartNode;
+	private LuaNode thenPartNode;
 	@Child
-	private LuaStatementNode elsePartNode;
+	private LuaNode elsePartNode;
 
 	private final BranchProfile thenProfile = new BranchProfile();
 	private final BranchProfile elseProfile = new BranchProfile();
@@ -32,7 +33,7 @@ public class LuaIfNode extends LuaStatementNode {
 	private int elseCount;
 
 	public LuaIfNode(LuaExpressionNode conditionNode,
-			LuaStatementNode thenPartNode, LuaStatementNode elsePartNode) {
+                     LuaNode thenPartNode, LuaNode elsePartNode) {
 		this.conditionNode = conditionNode;
 		this.thenPartNode = thenPartNode;
 		this.elsePartNode = elsePartNode;

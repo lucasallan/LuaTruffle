@@ -1,39 +1,42 @@
 package org.jlua.main.builtins;
 
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import org.jlua.main.nodes.LuaNode;
 
 /**
  * Created by Lucas Allan Amorim on 2014-09-14.
  */
-@NodeInfo(shortName = "println")
-public abstract class LuaPrintlnBuiltin extends LuaBuiltinNode {
+@NodeInfo(shortName = "print")
+@NodeChild(value = "value", type = LuaNode.class)
+public abstract class LuaPrintBuiltin extends LuaNode {
 
     @CompilerDirectives.SlowPath
     @Specialization
-    public long println(long value) {
+    public long print(long value) {
         System.out.println(value);
         return value;
     }
 
     @CompilerDirectives.SlowPath
     @Specialization
-    public boolean println(boolean value) {
+    public boolean print(boolean value) {
         System.out.println(value);
         return value;
     }
 
     @CompilerDirectives.SlowPath
     @Specialization
-    public String println(String value) {
+    public String print(String value) {
         System.out.println(value);
         return value;
     }
 
     @CompilerDirectives.SlowPath
     @Specialization
-    public Object println(Object value) {
+    public Object print(Object value) {
         System.out.println(value);
         return value;
     }

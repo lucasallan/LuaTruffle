@@ -10,9 +10,9 @@ import org.jlua.main.nodes.expressions.LuaFunctionBody;
  */
 public class LuaRootNode extends RootNode {
 
-    @Child protected LuaExpressionNode body;
+    @Child protected LuaNode body;
 
-    public LuaRootNode(LuaExpressionNode body, FrameDescriptor frameDescriptor) {
+    public LuaRootNode(LuaNode body, FrameDescriptor frameDescriptor) {
         super(null, frameDescriptor);
         this.body = body;
     }

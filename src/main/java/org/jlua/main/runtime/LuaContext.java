@@ -6,9 +6,8 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.NodeFactory;
 import com.oracle.truffle.api.instrument.SourceCallback;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import org.jlua.main.builtins.LuaBuiltinNode;
-import org.jlua.main.builtins.LuaPrintlnBuiltinFactory;
-import org.jlua.main.nodes.LuaExpressionNode;
+import org.jlua.main.builtins.LuaPrintBuiltinFactory;
+import org.jlua.main.nodes.LuaNode;
 import org.jlua.main.nodes.LuaRootNode;
 import org.jlua.main.nodes.LuaStatementNode;
 import org.jlua.main.nodes.expressions.LuaFunctionBody;
@@ -28,7 +27,7 @@ public class LuaContext extends ExecutionContext {
 
     public LuaContext() {
         this.luaMethodRegistry = new LuaMethodRegistry();
-        //installBuiltins();
+        installBuiltins();
     }
 
     public PrintStream getOutput() {
@@ -36,16 +35,16 @@ public class LuaContext extends ExecutionContext {
     }
 
     private void installBuiltins() {
-        installBuiltin(LuaPrintlnBuiltinFactory.getInstance());
+        installBuiltin(LuaPrintBuiltinFactory.getInstance());
     }
 
-    public void installBuiltin(NodeFactory<? extends LuaBuiltinNode> factory) {
+    public void installBuiltin(NodeFactory<? extends LuaNode> factory) {
         int argumentCount = factory.getExecutionSignature().size();
-        LuaExpressionNode[] argumentNodes = new LuaExpressionNode[argumentCount];
+        Object[] argumentNodes = new Object[argumentCount];
         for (int i = 0; i < argumentCount; i++) {
             argumentNodes[i] = new LuaReadArgumentNode(i);
         }
-        LuaBuiltinNode builtinBodyNode = factory.createNode(argumentNodes, this);
+        LuaNode builtinBodyNode = factory.createNode(argumentNodes);
         String name = builtinBodyNode.getClass().getAnnotation(NodeInfo.class).shortName();
 
         LuaRootNode rootNode = new LuaRootNode(builtinBodyNode, null);

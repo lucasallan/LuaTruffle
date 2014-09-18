@@ -152,7 +152,7 @@ public class Translator extends Visitor {
         // For now, returns only the first assignment
         for(int i = 0; i< localAssign.values.size(); i++) {
             LuaExpressionNode luaExpressionNode = (LuaExpressionNode) translate(localAssign.values.get(i));
-            return LuaWriteLocalVariableNodeFactory.create(luaExpressionNode, frameDescriptor.findOrAddFrameSlot(localAssign.names.get(i)));
+            return LuaWriteLocalVariableNodeFactory.create(luaExpressionNode, frameDescriptor.findOrAddFrameSlot(((Name) localAssign.names.get(i)).name));
         }
 
         throw new UnsupportedOperationException(String.valueOf(localAssign));

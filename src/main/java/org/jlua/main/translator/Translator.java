@@ -160,7 +160,6 @@ public class Translator extends Visitor {
 
     public LuaReturnNode visitReturn(Stat.Return aReturn) {
         //System.out.println(aReturn.nreturns()); //might have more than one return
-        System.out.println("Translator.visitReturn");
         Object objectReturned = translate(aReturn.values.get(0));
         return new LuaReturnNode((LuaNode) objectReturned);
     }

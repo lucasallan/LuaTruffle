@@ -23,7 +23,6 @@ public class LuaBlockNode extends LuaStatementNode {
         for (LuaNode node : bodyNodes) {
             node.executeVoid(frame);
         }
-
     }
 
 }

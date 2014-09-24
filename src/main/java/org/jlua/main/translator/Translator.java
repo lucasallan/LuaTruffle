@@ -4,16 +4,21 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import org.jlua.main.nodes.LuaConstantNode;
 import org.jlua.main.nodes.LuaExpressionNode;
 import org.jlua.main.nodes.LuaNode;
+import org.jlua.main.nodes.call.LuaFunctionCall;
+import org.jlua.main.nodes.call.LuaUninitializedDispatchNode;
+import org.jlua.main.nodes.expressions.LuaMethodNode;
 import org.jlua.main.nodes.local.LuaReadLocalVariableNodeFactory;
 import org.jlua.main.nodes.local.LuaWriteLocalVariableNodeFactory;
 import org.jlua.main.nodes.operations.arithmetic.*;
 import org.jlua.main.nodes.operations.relational.*;
 import org.jlua.main.nodes.statements.*;
 import org.jlua.main.runtime.LuaContext;
+import org.jlua.main.runtime.LuaMethod;
 import org.jlua.main.runtime.LuaNull;
 import org.luaj.vm2.ast.*;
 import org.luaj.vm2.ast.Stat.LocalAssign;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -143,8 +148,22 @@ public class Translator extends Visitor {
     }
 
     public Object visitFuncCallStat(Stat.FuncCallStat funcCallStat) {
-
+        if (funcCallStat.funccall.isfunccall()) {
+            // Calling a function
+            Exp.NameExp nameExp = (Exp.NameExp) funcCallStat.funccall.lhs;
+            List<LuaExpressionNode> arguments = visitFuncArgs(funcCallStat.funccall.args);
+            LuaMethod method = context.findLuaMethod(nameExp.name.name);
+            return new LuaFunctionCall( arguments.toArray(new LuaExpressionNode[arguments.size()]), new LuaMethodNode(method), new LuaUninitializedDispatchNode());
+        }
         throw new UnsupportedOperationException(String.valueOf("FuncCallStat"));
+    }
+
+    public List<LuaExpressionNode> visitFuncArgs(FuncArgs funcArgs) {
+        List<LuaExpressionNode> params = new ArrayList<LuaExpressionNode>();
+        for (Object object : funcArgs.exps) {
+            params.add((LuaExpressionNode) translate(object));
+        }
+        return params;
     }
 
     public Object visitLocalAssign(LocalAssign localAssign) {

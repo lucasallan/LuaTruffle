@@ -30,6 +30,10 @@ public class LuaContext extends ExecutionContext {
         installBuiltins();
     }
 
+    public LuaMethod findLuaMethod(String name){
+        return luaMethodRegistry.lookup(name);
+    }
+
     public PrintStream getOutput() {
         return System.out;
     }

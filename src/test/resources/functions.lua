@@ -1,2 +1,2 @@
 local num = 20
-return num
+print(num)

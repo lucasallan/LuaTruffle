@@ -1,11 +1,12 @@
 package org.jlua.main.translator;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import org.jlua.main.nodes.LuaConstantNode;
-import org.jlua.main.nodes.LuaExpressionNode;
-import org.jlua.main.nodes.LuaNode;
+import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.nodes.RootNode;
+import org.jlua.main.nodes.*;
 import org.jlua.main.nodes.call.LuaFunctionCall;
 import org.jlua.main.nodes.call.LuaUninitializedDispatchNode;
+import org.jlua.main.nodes.expressions.LuaFunctionBody;
 import org.jlua.main.nodes.expressions.LuaMethodNode;
 import org.jlua.main.nodes.local.LuaReadLocalVariableNodeFactory;
 import org.jlua.main.nodes.local.LuaWriteLocalVariableNodeFactory;
@@ -20,6 +21,7 @@ import org.luaj.vm2.ast.Stat.LocalAssign;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Lucas Allan Amorim on 2014-09-08.
@@ -38,7 +40,7 @@ public class Translator extends Visitor {
 
     // TODO needs a good cleaup
     public Object translate(Object object) {
-        if (object instanceof Chunk){
+        if (object instanceof Chunk) {
             return visitChunk((Chunk) object);
         } else if (object instanceof Block) {
             return visitBlock((Block) object);
@@ -56,12 +58,14 @@ public class Translator extends Visitor {
             return visitFuncCallStat((Stat.FuncCallStat) object);
         } else if (object instanceof Exp.ParensExp) {
             return visitParensExp((Exp.ParensExp) object);
-        } else if (object instanceof  Stat.WhileDo ) {
+        } else if (object instanceof Stat.WhileDo) {
             return visitWhileDo((Stat.WhileDo) object);
         } else if (object instanceof Stat.LocalAssign) {
             return visitLocalAssign((Stat.LocalAssign) object);
         } else if (object instanceof Exp.NameExp) {
             return visitLocalNameExp((Exp.NameExp) object);
+        } else if (object instanceof Exp.FuncCall) {
+            return visitFuncCall((Exp.FuncCall) object);
         } else {
             if (object != null) {
                 System.err.println("Needs be handled: " + object.getClass().getName());
@@ -143,15 +147,24 @@ public class Translator extends Visitor {
     }
 
     public Object visitFuncDef(Stat.FuncDef funcDef) {
+        LuaStatementNode body = (LuaStatementNode) translate(funcDef.body.block);
+        LuaFunctionBody methodBody = new LuaFunctionBody(body);
+        LuaRootNode root = new LuaRootNode(methodBody, getFrameDescriptor());
+        String name = funcDef.name.name.name;
 
-        throw new UnsupportedOperationException(String.valueOf("FuncDef"));
+        context.addLuaMethod(name, root);
+        return root;
     }
 
     public Object visitFuncCallStat(Stat.FuncCallStat funcCallStat) {
-        if (funcCallStat.funccall.isfunccall()) {
+        return visitFuncCall(funcCallStat.funccall);
+    }
+
+    public Object visitFuncCall(Exp.FuncCall funcCall) {
+        if (funcCall.isfunccall()) {
             // Calling a function
-            Exp.NameExp nameExp = (Exp.NameExp) funcCallStat.funccall.lhs;
-            List<LuaExpressionNode> arguments = visitFuncArgs(funcCallStat.funccall.args);
+            Exp.NameExp nameExp = (Exp.NameExp) funcCall.lhs;
+            List<LuaExpressionNode> arguments = visitFuncArgs(funcCall.args);
             LuaMethod method = context.findLuaMethod(nameExp.name.name);
             return new LuaFunctionCall( arguments.toArray(new LuaExpressionNode[arguments.size()]), new LuaMethodNode(method), new LuaUninitializedDispatchNode());
         }
@@ -160,8 +173,10 @@ public class Translator extends Visitor {
 
     public List<LuaExpressionNode> visitFuncArgs(FuncArgs funcArgs) {
         List<LuaExpressionNode> params = new ArrayList<LuaExpressionNode>();
-        for (Object object : funcArgs.exps) {
-            params.add((LuaExpressionNode) translate(object));
+        if (funcArgs.exps != null) {
+            for (Object object : funcArgs.exps) {
+                params.add((LuaExpressionNode) translate(object));
+            }
         }
         return params;
     }

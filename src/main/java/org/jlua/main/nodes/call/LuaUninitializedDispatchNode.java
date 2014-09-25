@@ -23,7 +23,7 @@ public final class LuaUninitializedDispatchNode extends LuaAbstractDispatchNode 
 
         LuaAbstractDispatchNode replacement;
         if (function.getCallTarget() == null) {
-            throw new UnsupportedOperationException("Call of undefined function: " + function.getName());
+            throw new UnsupportedOperationException("Call of undefined method: " + function.getName());
 
         } else if (depth < INLINE_CACHE_SIZE) {
             LuaAbstractDispatchNode next = new LuaUninitializedDispatchNode();

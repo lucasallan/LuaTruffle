@@ -21,7 +21,9 @@ public class LuaBlockNode extends LuaStatementNode {
     @Override
     public void executeVoid(VirtualFrame frame) {
         for (LuaNode node : bodyNodes) {
-            node.executeVoid(frame);
+            if (node != null){
+                node.executeVoid(frame);
+            }
         }
     }
 

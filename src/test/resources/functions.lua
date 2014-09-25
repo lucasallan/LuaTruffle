@@ -1,2 +1,4 @@
-local num = 20
-print(num)
+function newFunction()
+    return 10
+end
+return newFunction()

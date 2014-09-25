@@ -6,6 +6,7 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.NodeFactory;
 import com.oracle.truffle.api.instrument.SourceCallback;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.api.nodes.RootNode;
 import org.jlua.main.builtins.LuaPrintBuiltinFactory;
 import org.jlua.main.nodes.LuaNode;
 import org.jlua.main.nodes.LuaRootNode;
@@ -32,6 +33,10 @@ public class LuaContext extends ExecutionContext {
 
     public LuaMethod findLuaMethod(String name){
         return luaMethodRegistry.lookup(name);
+    }
+
+    public void addLuaMethod(String name, LuaRootNode node) {
+        luaMethodRegistry.register(name, node);
     }
 
     public PrintStream getOutput() {

@@ -1,27 +1,24 @@
 package org.jlua.main.translator;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.api.nodes.RootNode;
 import org.jlua.main.nodes.*;
 import org.jlua.main.nodes.call.LuaFunctionCall;
 import org.jlua.main.nodes.call.LuaUninitializedDispatchNode;
 import org.jlua.main.nodes.expressions.LuaFunctionBody;
-import org.jlua.main.nodes.expressions.LuaMethodNode;
+import org.jlua.main.nodes.expressions.LuaFunctionNode;
 import org.jlua.main.nodes.local.LuaReadLocalVariableNodeFactory;
 import org.jlua.main.nodes.local.LuaWriteLocalVariableNodeFactory;
 import org.jlua.main.nodes.operations.arithmetic.*;
 import org.jlua.main.nodes.operations.relational.*;
 import org.jlua.main.nodes.statements.*;
 import org.jlua.main.runtime.LuaContext;
-import org.jlua.main.runtime.LuaMethod;
+import org.jlua.main.runtime.LuaFunction;
 import org.jlua.main.runtime.LuaNull;
 import org.luaj.vm2.ast.*;
 import org.luaj.vm2.ast.Stat.LocalAssign;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Lucas Allan Amorim on 2014-09-08.
@@ -165,8 +162,8 @@ public class Translator extends Visitor {
             // Calling a function
             Exp.NameExp nameExp = (Exp.NameExp) funcCall.lhs;
             List<LuaExpressionNode> arguments = visitFuncArgs(funcCall.args);
-            LuaMethod method = context.findLuaMethod(nameExp.name.name);
-            return new LuaFunctionCall( arguments.toArray(new LuaExpressionNode[arguments.size()]), new LuaMethodNode(method), new LuaUninitializedDispatchNode());
+            LuaFunction method = context.findLuaMethod(nameExp.name.name);
+            return new LuaFunctionCall( arguments.toArray(new LuaExpressionNode[arguments.size()]), new LuaFunctionNode(method), new LuaUninitializedDispatchNode());
         }
         throw new UnsupportedOperationException(String.valueOf("FuncCallStat"));
     }

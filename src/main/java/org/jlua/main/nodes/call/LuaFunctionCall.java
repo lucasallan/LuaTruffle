@@ -7,10 +7,7 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import org.jlua.main.nodes.LuaExpressionNode;
-import org.jlua.main.nodes.expressions.LuaMethodNode;
-import org.jlua.main.runtime.LuaMethod;
-
-import java.util.List;
+import org.jlua.main.runtime.LuaFunction;
 
 /**
  * Created by Lucas Allan Amorim on 2014-09-18.
@@ -31,7 +28,7 @@ public final class LuaFunctionCall extends LuaExpressionNode {
     @ExplodeLoop
     public Object execute(VirtualFrame frame) {
         try {
-            LuaMethod method = functionNode.executeLuaMethod(frame);
+            LuaFunction method = functionNode.executeLuaMethod(frame);
             CompilerAsserts.compilationConstant(argumentNodes.length);
 
             Object[] argumentValues = new Object[argumentNodes.length];

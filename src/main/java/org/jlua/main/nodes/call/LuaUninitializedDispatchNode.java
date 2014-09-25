@@ -3,14 +3,14 @@ package org.jlua.main.nodes.call;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
-import org.jlua.main.runtime.LuaMethod;
+import org.jlua.main.runtime.LuaFunction;
 
 /**
  * Created by Lucas Allan Amorim on 2014-09-24.
  */
 public final class LuaUninitializedDispatchNode extends LuaAbstractDispatchNode {
     @Override
-    protected Object executeDispatch(VirtualFrame frame, LuaMethod function, Object[] arguments) {
+    protected Object executeDispatch(VirtualFrame frame, LuaFunction function, Object[] arguments) {
         CompilerDirectives.transferToInterpreterAndInvalidate();
 
         Node cur = this;

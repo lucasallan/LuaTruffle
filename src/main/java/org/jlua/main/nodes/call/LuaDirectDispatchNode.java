@@ -5,19 +5,19 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.InvalidAssumptionException;
-import org.jlua.main.runtime.LuaMethod;
+import org.jlua.main.runtime.LuaFunction;
 
 /**
  * Created by Lucas Allan Amorim on 2014-09-24.
  */
 public final class LuaDirectDispatchNode extends LuaAbstractDispatchNode {
 
-    private final LuaMethod cachedMethod;
+    private final LuaFunction cachedMethod;
     @Child private DirectCallNode callCachedTargetNode;
     private final Assumption cachedTargetStable;
     @Child private LuaAbstractDispatchNode nextNode;
 
-    public LuaDirectDispatchNode(LuaAbstractDispatchNode next, LuaMethod cachedFunction) {
+    public LuaDirectDispatchNode(LuaAbstractDispatchNode next, LuaFunction cachedFunction) {
         this.cachedMethod = cachedFunction;
         this.callCachedTargetNode = Truffle.getRuntime().createDirectCallNode(cachedFunction.getCallTarget());
         this.cachedTargetStable = cachedFunction.getCallTargetStable();
@@ -25,7 +25,7 @@ public final class LuaDirectDispatchNode extends LuaAbstractDispatchNode {
     }
 
     @Override
-    protected Object executeDispatch(VirtualFrame frame, LuaMethod function, Object[] arguments) {
+    protected Object executeDispatch(VirtualFrame frame, LuaFunction function, Object[] arguments) {
         if (this.cachedMethod == function) {
             try {
                 cachedTargetStable.check();

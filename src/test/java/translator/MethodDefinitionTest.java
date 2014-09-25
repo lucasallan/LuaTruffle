@@ -1,5 +1,6 @@
 package translator;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -7,7 +8,7 @@ import org.junit.Test;
  */
 public class MethodDefinitionTest extends BaseTranslatorTest {
     @Test
-    public void testMethodDefinitionAndCallTest(){
+    public void testFunctionDefinitionAndCallTest(){
         assertEquals(createCallTarget(createTempFile(
                 "function newFunction()\n" +
                     "return 10\n" +
@@ -15,4 +16,13 @@ public class MethodDefinitionTest extends BaseTranslatorTest {
                 "return newFunction()")
         ).call(), (long) 10);
     }
+//    @Test
+//    public void testFunctionsWithParamTest(){
+//        assertEquals(createCallTarget(createTempFile(
+//                        "function return_value(a)\n" +
+//                                "    return a\n" +
+//                                "end\n" +
+//                                "return return_value(10)")
+//        ).call(), (long) 10);
+//    }
 }

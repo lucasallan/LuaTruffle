@@ -2,21 +2,21 @@ package org.jlua.main.nodes.expressions;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import org.jlua.main.nodes.LuaExpressionNode;
-import org.jlua.main.runtime.LuaMethod;
+import org.jlua.main.runtime.LuaFunction;
 
 /**
  * Created by Lucas Allan Amorim on 2014-09-24.
  */
-public final class LuaMethodNode extends LuaExpressionNode {
+public final class LuaFunctionNode extends LuaExpressionNode {
 
-    private final LuaMethod value;
+    private final LuaFunction value;
 
-    public LuaMethodNode(LuaMethod value) {
+    public LuaFunctionNode(LuaFunction value) {
         this.value = value;
     }
 
-    public LuaMethod executeFunction(VirtualFrame frame) {
-        return (LuaMethod) execute(frame);
+    public LuaFunction executeFunction(VirtualFrame frame) {
+        return (LuaFunction) execute(frame);
     }
 
     public Object executeGeneric(VirtualFrame frame) {

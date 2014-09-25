@@ -6,7 +6,6 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.NodeFactory;
 import com.oracle.truffle.api.instrument.SourceCallback;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.api.nodes.RootNode;
 import org.jlua.main.builtins.LuaPrintBuiltinFactory;
 import org.jlua.main.nodes.LuaNode;
 import org.jlua.main.nodes.LuaRootNode;
@@ -23,20 +22,20 @@ import java.io.PrintStream;
  */
 public class LuaContext extends ExecutionContext {
 
-    private final LuaMethodRegistry luaMethodRegistry;
+    private final LuaFunctionRegistry luaFunctionRegistry;
     private SourceCallback sourceCallback = null;
 
     public LuaContext() {
-        this.luaMethodRegistry = new LuaMethodRegistry();
+        this.luaFunctionRegistry = new LuaFunctionRegistry();
         installBuiltins();
     }
 
-    public LuaMethod findLuaMethod(String name){
-        return luaMethodRegistry.lookup(name);
+    public LuaFunction findLuaMethod(String name){
+        return luaFunctionRegistry.lookup(name);
     }
 
     public void addLuaMethod(String name, LuaRootNode node) {
-        luaMethodRegistry.register(name, node);
+        luaFunctionRegistry.register(name, node);
     }
 
     public PrintStream getOutput() {
@@ -58,7 +57,7 @@ public class LuaContext extends ExecutionContext {
 
         LuaRootNode rootNode = new LuaRootNode(builtinBodyNode, null);
 
-        luaMethodRegistry.register(name, rootNode);
+        luaFunctionRegistry.register(name, rootNode);
     }
 
     @Override

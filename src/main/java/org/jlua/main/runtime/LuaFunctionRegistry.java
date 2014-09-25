@@ -11,16 +11,16 @@ import java.util.Map;
 /**
  * Created by Lucas Allan Amorim on 2014-09-14.
  */
-public final class LuaMethodRegistry {
+public final class LuaFunctionRegistry {
 
-    private final Map<String, LuaMethod> methods = new HashMap<>();
+    private final Map<String, LuaFunction> methods = new HashMap<>();
 
-    public LuaMethod lookup(String name) {
+    public LuaFunction lookup(String name) {
         CompilerAsserts.neverPartOfCompilation();
 
-        LuaMethod result = methods.get(name);
+        LuaFunction result = methods.get(name);
         if (result == null) {
-            result = new LuaMethod(name);
+            result = new LuaFunction(name);
             methods.put(name, result);
         }
         return result;
@@ -29,7 +29,7 @@ public final class LuaMethodRegistry {
     public void register(String name, LuaRootNode rootNode) {
         CompilerAsserts.neverPartOfCompilation();
 
-        LuaMethod method = lookup(name);
+        LuaFunction method = lookup(name);
         RootCallTarget callTarget = Truffle.getRuntime().createCallTarget(rootNode);
         method.setCallTarget(callTarget);
     }

@@ -7,7 +7,7 @@ import com.oracle.truffle.api.utilities.CyclicAssumption;
 /**
  * Created by Lucas Allan Amorim on 2014-09-10.
  */
-public final class LuaMethod {
+public final class LuaFunction {
 
     private final String name;
 
@@ -15,7 +15,7 @@ public final class LuaMethod {
 
     private final CyclicAssumption callTargetStable;
 
-    protected LuaMethod(String name) {
+    protected LuaFunction(String name) {
         this.name = name;
         this.callTargetStable = new CyclicAssumption(name);
     }

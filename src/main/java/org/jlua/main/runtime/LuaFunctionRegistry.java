@@ -6,6 +6,7 @@ import com.oracle.truffle.api.Truffle;
 import org.jlua.main.nodes.LuaRootNode;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,6 +25,14 @@ public final class LuaFunctionRegistry {
             methods.put(name, result);
         }
         return result;
+    }
+
+    public void register(String name, LuaRootNode rootNode, String[] params) {
+        CompilerAsserts.neverPartOfCompilation();
+
+        LuaFunction method = lookup(name);
+        RootCallTarget callTarget = Truffle.getRuntime().createCallTarget(rootNode);
+        method.setCallTarget(callTarget);
     }
 
     public void register(String name, LuaRootNode rootNode) {

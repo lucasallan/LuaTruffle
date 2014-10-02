@@ -11,6 +11,7 @@ public final class LuaFunction {
 
     private final String name;
 
+
     private RootCallTarget callTarget;
 
     private final CyclicAssumption callTargetStable;
@@ -41,4 +42,5 @@ public final class LuaFunction {
     public String toString() {
         return name;
     }
+
 }

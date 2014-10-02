@@ -1,5 +1,7 @@
 package org.jlua.main.nodes.local;
 
+import com.oracle.truffle.api.dsl.NodeField;
+import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import org.jlua.main.nodes.LuaExpressionNode;
 import org.jlua.main.runtime.LuaNull;
@@ -7,6 +9,7 @@ import org.jlua.main.runtime.LuaNull;
 /**
  * Created by Lucas Allan Amorim on 2014-09-14.
  */
+@NodeField(name = "slot", type = FrameSlot.class)
 public class LuaReadArgumentNode extends LuaExpressionNode {
 
     private final int index;

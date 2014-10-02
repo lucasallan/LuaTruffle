@@ -34,6 +34,10 @@ public class LuaContext extends ExecutionContext {
         return luaFunctionRegistry.lookup(name);
     }
 
+    public void addLuaMethod(String name, LuaRootNode node, String[] params) {
+        luaFunctionRegistry.register(name, node);
+    }
+
     public void addLuaMethod(String name, LuaRootNode node) {
         luaFunctionRegistry.register(name, node);
     }
@@ -52,6 +56,10 @@ public class LuaContext extends ExecutionContext {
         for (int i = 0; i < argumentCount; i++) {
             argumentNodes[i] = new LuaReadArgumentNode(i);
         }
+        for (int i = 0; i < argumentCount; i++) {
+            argumentNodes[i] = new LuaReadArgumentNode(i);
+        }
+
         LuaNode builtinBodyNode = factory.createNode(argumentNodes);
         String name = builtinBodyNode.getClass().getAnnotation(NodeInfo.class).shortName();
 
@@ -77,6 +85,6 @@ public class LuaContext extends ExecutionContext {
         LuaRootNode root = new LuaRootNode(body, translator.getFrameDescriptor());
         CallTarget callTarget = Truffle.getRuntime().createCallTarget(root);
 
-        System.out.println(callTarget.call());
+        callTarget.call();
     }
 }

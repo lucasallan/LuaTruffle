@@ -1,4 +1,4 @@
-function newFunction()
-    return 10
+function newFunction(name)
+    print(name)
 end
-return newFunction()
+return newFunction("hello")

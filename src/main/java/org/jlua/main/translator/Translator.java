@@ -1,12 +1,15 @@
 package org.jlua.main.translator;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.FrameSlot;
 import org.jlua.main.nodes.*;
 import org.jlua.main.nodes.call.LuaFunctionCall;
 import org.jlua.main.nodes.call.LuaUninitializedDispatchNode;
 import org.jlua.main.nodes.expressions.LuaFunctionBody;
 import org.jlua.main.nodes.expressions.LuaFunctionNode;
+import org.jlua.main.nodes.local.LuaReadArgumentNode;
 import org.jlua.main.nodes.local.LuaReadLocalVariableNodeFactory;
+import org.jlua.main.nodes.local.LuaWriteLocalVariableNode;
 import org.jlua.main.nodes.local.LuaWriteLocalVariableNodeFactory;
 import org.jlua.main.nodes.operations.arithmetic.*;
 import org.jlua.main.nodes.operations.relational.*;
@@ -145,12 +148,20 @@ public class Translator extends Visitor {
 
     public Object visitFuncDef(Stat.FuncDef funcDef) {
         LuaStatementNode body = (LuaStatementNode) translate(funcDef.body.block);
+        for(int i = 0; i < funcDef.body.parlist.names.size(); i++) {
+            Name paramName = (Name) funcDef.body.parlist.names.get(i);
+            addFormalParameter(paramName.name, i);
+        }
         LuaFunctionBody methodBody = new LuaFunctionBody(body);
         LuaRootNode root = new LuaRootNode(methodBody, getFrameDescriptor());
         String name = funcDef.name.name.name;
-
         context.addLuaMethod(name, root);
         return root;
+    }
+
+    public void addFormalParameter(String nameToken, int parameterCount) {
+        final LuaReadArgumentNode readArg = new LuaReadArgumentNode(parameterCount);
+        LuaWriteLocalVariableNodeFactory.create(readArg, getFrameDescriptor().findOrAddFrameSlot(nameToken));
     }
 
     public Object visitFuncCallStat(Stat.FuncCallStat funcCallStat) {
@@ -163,7 +174,7 @@ public class Translator extends Visitor {
             Exp.NameExp nameExp = (Exp.NameExp) funcCall.lhs;
             List<LuaExpressionNode> arguments = visitFuncArgs(funcCall.args);
             LuaFunction method = context.findLuaMethod(nameExp.name.name);
-            return new LuaFunctionCall( arguments.toArray(new LuaExpressionNode[arguments.size()]), new LuaFunctionNode(method), new LuaUninitializedDispatchNode());
+            return new LuaFunctionCall(arguments.toArray(new LuaExpressionNode[arguments.size()]), new LuaFunctionNode(method), new LuaUninitializedDispatchNode());
         }
         throw new UnsupportedOperationException(String.valueOf("FuncCallStat"));
     }
@@ -172,7 +183,9 @@ public class Translator extends Visitor {
         List<LuaExpressionNode> params = new ArrayList<LuaExpressionNode>();
         if (funcArgs.exps != null) {
             for (Object object : funcArgs.exps) {
-                params.add((LuaExpressionNode) translate(object));
+                //LuaReadArgumentNode
+                LuaExpressionNode node = (LuaExpressionNode) translate(object);
+                params.add(node);
             }
         }
         return params;
@@ -231,12 +244,6 @@ public class Translator extends Visitor {
         }
         throw new UnsupportedOperationException(String.valueOf(binopExp.op));
     }
-
-    @Override
-    public void visit(Exp.Constant constant) {
-        System.err.println(visitConstant(constant).toString());
-    }
-
 
     public LuaConstantNode visitConstant(Exp.Constant constant){
         if (constant.value.typename().equals("number")){

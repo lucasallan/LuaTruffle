@@ -4,8 +4,19 @@ Master: [![Build Status](https://travis-ci.org/lucasallan/jlua.png?branch=master
 
 ## Compiling
 
-  mvn package
+    mvn package
 
 ## Running
 
-  mvn exec:java -Dexec.mainClass="org.jlua.main.Main" -Dexec.args="src/test/main.lua"
+    bin/jlua my.lua
+
+## Running With Graal
+
+Download one of:
+
+* http://lafo.ssw.uni-linz.ac.at/graalvm/openjdk-8-graalvm-b132-linux-x86_64-0.5.tar.gz
+* http://lafo.ssw.uni-linz.ac.at/graalvm/openjdk-8-graalvm-b132-macosx-x86_64-0.5.tar.gz
+
+Then run:
+
+    JAVACMD=../graalvm-jdk1.8.0/bin/java my.lua

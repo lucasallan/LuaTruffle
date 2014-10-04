@@ -1,12 +1,6 @@
 package org.jlua.main;
 
-import com.oracle.truffle.api.CallTarget;
-import com.oracle.truffle.api.Truffle;
-import org.jlua.main.nodes.LuaRootNode;
-import org.jlua.main.nodes.LuaStatementNode;
-import org.jlua.main.nodes.expressions.LuaFunctionBody;
 import org.jlua.main.runtime.LuaContext;
-import org.jlua.main.translator.Translator;
 import org.luaj.vm2.ast.Chunk;
 import org.luaj.vm2.parser.LuaParser;
 
@@ -19,7 +13,13 @@ public class Main {
 
 	public static void main(String args[]) {
 		try {
-		    String file = "src/test/resources/functions.lua";
+            if (args.length != 1) {
+                System.err.println("usage: jlua file");
+                System.exit(1);
+            }
+
+            final String file = args[0];
+
 			LuaParser parser = new LuaParser(new FileInputStream(file));
 			Chunk chunk = parser.Chunk();
 

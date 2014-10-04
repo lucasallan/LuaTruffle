@@ -30,6 +30,12 @@ public abstract class LuaWriteLocalVariableNode extends LuaExpressionNode {
         return value;
     }
 
+    @Specialization
+    protected Object writeObject(VirtualFrame frame, Object value) {
+        frame.setObject(getSlot(), value);
+        return value;
+    }
+
     protected boolean isLongKind() {
         return isKind(FrameSlotKind.Long);
     }

@@ -33,9 +33,7 @@ public final class LuaFunctionCall extends LuaExpressionNode {
 
             Object[] argumentValues = new Object[argumentNodes.length];
             for (int i = 0; i < argumentNodes.length; i++) {
-                if (argumentNodes[i] != null) {
-                    argumentValues[i] = argumentNodes[i].execute(frame);
-                }
+                argumentValues[i] = argumentNodes[i].execute(frame);
             }
             return dispatchNode.executeDispatch(frame, method, argumentValues);
         } catch (UnexpectedResultException ex) {

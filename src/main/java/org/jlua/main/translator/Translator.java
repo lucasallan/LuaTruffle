@@ -153,21 +153,24 @@ public class Translator extends Visitor {
     }
 
     public Object visitFuncDef(Stat.FuncDef funcDef) {
-        LuaStatementNode body = (LuaStatementNode) translate(funcDef.body.block);
+        final LuaWriteLocalVariableNode[] paramsIntoLocals = new LuaWriteLocalVariableNode[funcDef.body.parlist.names.size()];
         for(int i = 0; i < funcDef.body.parlist.names.size(); i++) {
             Name paramName = (Name) funcDef.body.parlist.names.get(i);
-            addFormalParameter(paramName.name, i);
+            paramsIntoLocals[i] = addFormalParameter(paramName.name, i);
         }
-        LuaFunctionBody methodBody = new LuaFunctionBody(body);
+        LuaBlockNode prelude = new LuaBlockNode(paramsIntoLocals);
+        LuaStatementNode body = (LuaStatementNode) translate(funcDef.body.block);
+        LuaBlockNode preludeAndBody = new LuaBlockNode(new LuaNode[]{prelude, body});
+        LuaFunctionBody methodBody = new LuaFunctionBody(preludeAndBody);
         LuaRootNode root = new LuaRootNode(methodBody, getFrameDescriptor());
         String name = funcDef.name.name.name;
         context.addLuaMethod(name, root);
         return root;
     }
 
-    public void addFormalParameter(String nameToken, int parameterCount) {
+    public LuaWriteLocalVariableNode addFormalParameter(String nameToken, int parameterCount) {
         final LuaReadArgumentNode readArg = new LuaReadArgumentNode(parameterCount);
-        LuaWriteLocalVariableNodeFactory.create(readArg, getFrameDescriptor().findOrAddFrameSlot(nameToken));
+        return LuaWriteLocalVariableNodeFactory.create(readArg, getFrameDescriptor().findOrAddFrameSlot(nameToken));
     }
 
     public Object visitFuncCallStat(Stat.FuncCallStat funcCallStat) {

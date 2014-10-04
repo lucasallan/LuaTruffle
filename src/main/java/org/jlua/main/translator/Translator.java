@@ -180,9 +180,27 @@ public class Translator extends Visitor {
     public Object visitFuncCall(Exp.FuncCall funcCall) {
         if (funcCall.isfunccall()) {
             // Calling a function
-            Exp.NameExp nameExp = (Exp.NameExp) funcCall.lhs;
+
+            LuaFunction method;
+
+            if (funcCall.lhs instanceof Exp.NameExp) {
+                Exp.NameExp nameExp = (Exp.NameExp) funcCall.lhs;
+                method = context.findLuaMethod(nameExp.name.name);
+            } else if (funcCall.lhs instanceof Exp.FieldExp) {
+                Exp.FieldExp fieldExp = (Exp.FieldExp) funcCall.lhs;
+
+                // Hack: statically look for os.clock and use osclock
+
+                if (fieldExp.lhs instanceof Exp.NameExp && ((Exp.NameExp) fieldExp.lhs).name.name.equals("os") && fieldExp.name.name.equals("clock")) {
+                    method = context.findLuaMethod("osclock");
+                } else {
+                    throw new UnsupportedOperationException();
+                }
+            } else {
+                throw new UnsupportedOperationException();
+            }
+
             List<LuaExpressionNode> arguments = visitFuncArgs(funcCall.args);
-            LuaFunction method = context.findLuaMethod(nameExp.name.name);
             return new LuaFunctionCall(arguments.toArray(new LuaExpressionNode[arguments.size()]), new LuaFunctionNode(method), new LuaUninitializedDispatchNode());
         }
         throw new UnsupportedOperationException(String.valueOf("FuncCallStat"));
@@ -261,6 +279,8 @@ public class Translator extends Visitor {
             return new LuaObjectConstantNode(LuaNull.SINGLETON);
         } else if (constant.value.typename().equals("string")){
             return new LuaObjectConstantNode(constant.value.toString());
+        } else if (constant.value.typename().equals("boolean")){
+            return new LuaBooleanConstantNode(constant.value.checkboolean());
         }
         // needs to handle others lua types
         throw  new UnsupportedOperationException(constant.value.typename());

@@ -7,6 +7,7 @@ import com.oracle.truffle.api.dsl.NodeFactory;
 import com.oracle.truffle.api.instrument.SourceCallback;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import org.jlua.main.builtins.LuaPrintBuiltinFactory;
+import org.jlua.main.builtins.LuaOSClockBuiltinFactory;
 import org.jlua.main.nodes.LuaNode;
 import org.jlua.main.nodes.LuaRootNode;
 import org.jlua.main.nodes.LuaStatementNode;
@@ -48,6 +49,7 @@ public class LuaContext extends ExecutionContext {
 
     private void installBuiltins() {
         installBuiltin(LuaPrintBuiltinFactory.getInstance());
+        installBuiltin(LuaOSClockBuiltinFactory.getInstance());
     }
 
     public void installBuiltin(NodeFactory<? extends LuaNode> factory) {

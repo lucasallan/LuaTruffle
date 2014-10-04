@@ -17,6 +17,11 @@ public abstract class LuaSubtractionNode extends LuaBinaryNode {
     }
 
     @Specialization
+    protected double subtract(double left, double right) {
+        return left - right;
+    }
+
+    @Specialization
     protected BigInteger subtract(BigInteger left, BigInteger right) {
         return left.subtract(right);
     }

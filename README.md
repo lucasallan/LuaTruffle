@@ -24,3 +24,16 @@ Then run:
 ## Options
 
 To pass options to the JVM, prefix with `-J`. For example, `-J-Xmx1G`.
+
+## Performance
+
+Fibonacci is of course a terrible benchmark, but it's all we can run at the
+moment. We also probably don't implement Lua correctly yet.
+
+Compare:
+
+    lua src/test/resources/fibonacci.lua
+    luajit src/test/resources/fibonacci.lua
+    JAVACMD=../graalvm-jdk1.8.0/bin/java bin/jlua src/test/resources/fibonacci.lua
+
+We're around 6x compared to `lua`, and a third as fast as `luajit`.

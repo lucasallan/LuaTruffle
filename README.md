@@ -20,3 +20,7 @@ Download one of:
 Then run:
 
     JAVACMD=../graalvm-jdk1.8.0/bin/java my.lua
+
+## Options
+
+To pass options to the JVM, prefix with `-J`. For example, `-J-Xmx1G`.

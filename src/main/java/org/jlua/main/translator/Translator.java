@@ -98,18 +98,8 @@ public class Translator extends Visitor {
     public Object visitIfThenElse(Stat.IfThenElse ifThenElse) {
 
         LuaExpressionNode expression = (LuaExpressionNode) translate(ifThenElse.ifexp);
-        LuaNode elseBlock;
         LuaNode ifBlock;
-
-        if (ifThenElse.elseblock != null) {
-            LuaNode[] elseBlocks = new LuaNode[ifThenElse.elseblock.stats.size()];
-            for (int i = 0; i < ifThenElse.elseblock.stats.size(); i++) {
-                elseBlocks[i] = (LuaNode) translate(ifThenElse.elseblock.stats.get(i));
-            }
-            elseBlock = new LuaBlockNode(elseBlocks);
-        } else {
-            elseBlock = new LuaNopNode();
-        }
+        LuaNode elseBlock;
 
         if (ifThenElse.ifblock != null) {
             LuaNode[] ifBlocks = new LuaNode[ifThenElse.ifblock.stats.size()];
@@ -121,8 +111,18 @@ public class Translator extends Visitor {
             ifBlock = new LuaNopNode();
         }
 
+        if (ifThenElse.elseblock != null) {
+            LuaNode[] elseBlocks = new LuaNode[ifThenElse.elseblock.stats.size()];
+            for (int i = 0; i < ifThenElse.elseblock.stats.size(); i++) {
+                elseBlocks[i] = (LuaNode) translate(ifThenElse.elseblock.stats.get(i));
+            }
+            elseBlock = new LuaBlockNode(elseBlocks);
+        } else {
+            elseBlock = new LuaNopNode();
+        }
+
         // TODO Handle elseIfs
-        return new LuaIfNode(expression, elseBlock, ifBlock);
+        return new LuaIfNode(expression, ifBlock, elseBlock);
     }
 
     public LuaNode visitChunk(Chunk chunk) {
@@ -254,13 +254,13 @@ public class Translator extends Visitor {
         throw new UnsupportedOperationException(String.valueOf(binopExp.op));
     }
 
-    public LuaConstantNode visitConstant(Exp.Constant constant){
+    public LuaNode visitConstant(Exp.Constant constant){
         if (constant.value.typename().equals("number")){
-            return new LuaConstantNode(constant.value.checklong());
+            return new LuaLongConstantNode(constant.value.checklong());
         } else if (constant.value.typename().equals("nil")) {
-            return new LuaConstantNode(LuaNull.SINGLETON);
+            return new LuaObjectConstantNode(LuaNull.SINGLETON);
         } else if (constant.value.typename().equals("string")){
-            return new LuaConstantNode(constant.value.toString());
+            return new LuaObjectConstantNode(constant.value.toString());
         }
         // needs to handle others lua types
         throw  new UnsupportedOperationException(constant.value.typename());

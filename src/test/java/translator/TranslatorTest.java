@@ -11,7 +11,7 @@ public class TranslatorTest extends BaseTranslatorTest {
     @Test
     public void testIfThenElse() {
         CallTarget callTarget = createCallTarget(getLuaFile("ifthenelse.lua"));
-        long expectResult = 0;
+        long expectResult = 10;
         assertEquals(callTarget.call(), expectResult);
     }
 }

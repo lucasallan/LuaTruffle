@@ -80,7 +80,13 @@ public class Translator extends Visitor {
     }
 
     private Object visitName(Name name) {
-        return LuaReadLocalVariableNodeFactory.create(frameDescriptor.findFrameSlot(name.name));
+        final FrameSlot frameSlot = frameDescriptor.findFrameSlot(name.name);
+
+        if (frameSlot == null) {
+            throw new RuntimeException(String.format("Name '%s' not found in translator", name.name));
+        }
+
+        return LuaReadLocalVariableNodeFactory.create(frameSlot);
     }
 
     private Object visitWhileDo(Stat.WhileDo whileDo) {

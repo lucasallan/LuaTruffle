@@ -1,6 +1,6 @@
 # LuaTruffle -  A Java implementation of the Lua language
 
-Master: [![Build Status](https://travis-ci.org/lucasallan/luatruffle.png?branch=master)](https://travis-ci.org/lucasallan/luatruffle)
+Master: [![Build Status](https://travis-ci.org/lucasallan/LuaTruffle.svg?branch=master)](https://travis-ci.org/lucasallan/LuaTruffle)
 
 ## Compiling
 

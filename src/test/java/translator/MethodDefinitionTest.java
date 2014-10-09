@@ -1,5 +1,6 @@
 package translator;
 
+import org.jlua.main.runtime.LuaNull;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -20,18 +21,26 @@ public class MethodDefinitionTest extends BaseTranslatorTest {
     public void testFunctionsWithParamTest(){
         assertEquals(createCallTarget(createTempFile(
                         "function return_value(a)\n" +
-                                "    return a\n" +
-                                "end\n" +
-                                "return return_value(10)")
+                            "return a\n" +
+                        "end\n" +
+                        "return return_value(10)")
         ).call(), (long) 10);
     }
 
-    public void testLocalFunctionsWithParamTest() {
+    public void testDefiningLocalFunctions() {
         assertEquals(createCallTarget(createTempFile(
                         "local function newFunction()\n" +
+                            "return 10\n" +
+                        "end")
+        ).call(), LuaNull.SINGLETON);
+    }
+
+    public void testCallingLocalFunctions() {
+        assertEquals(createCallTarget(createTempFile(
+                        "local function return_value()\n" +
                                 "return 10\n" +
                                 "end\n" +
-                                "return newFunction()")
+                                "return return_value()")
         ).call(), (long) 10);
     }
 }

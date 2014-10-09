@@ -28,7 +28,7 @@ public final class LuaFunctionCall extends LuaExpressionNode {
     @ExplodeLoop
     public Object execute(VirtualFrame frame) {
         try {
-            LuaFunction method = functionNode.executeLuaMethod(frame);
+            LuaFunction method = functionNode.executeLuaFunction(frame);
             CompilerAsserts.compilationConstant(argumentNodes.length);
 
             Object[] argumentValues = new Object[argumentNodes.length];

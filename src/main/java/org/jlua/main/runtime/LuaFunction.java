@@ -10,8 +10,6 @@ import com.oracle.truffle.api.utilities.CyclicAssumption;
 public final class LuaFunction {
 
     private final String name;
-
-
     private RootCallTarget callTarget;
 
     private final CyclicAssumption callTargetStable;

@@ -7,12 +7,21 @@ import org.jlua.main.nodes.call.LuaFunctionCall;
 import org.jlua.main.nodes.call.LuaUninitializedDispatchNode;
 import org.jlua.main.nodes.expressions.LuaFunctionBody;
 import org.jlua.main.nodes.expressions.LuaFunctionNode;
-import org.jlua.main.nodes.local.LuaReadArgumentNode;
+import org.jlua.main.nodes.local.*;
 import org.jlua.main.nodes.local.LuaReadLocalVariableNodeFactory;
-import org.jlua.main.nodes.local.LuaWriteLocalVariableNode;
 import org.jlua.main.nodes.local.LuaWriteLocalVariableNodeFactory;
 import org.jlua.main.nodes.operations.arithmetic.*;
+import org.jlua.main.nodes.operations.arithmetic.LuaAddNodeFactory;
+import org.jlua.main.nodes.operations.arithmetic.LuaDivisionOperationFactory;
+import org.jlua.main.nodes.operations.arithmetic.LuaExponentiationNodeFactory;
+import org.jlua.main.nodes.operations.arithmetic.LuaMultiplicationNodeFactory;
+import org.jlua.main.nodes.operations.arithmetic.LuaSubtractionNodeFactory;
 import org.jlua.main.nodes.operations.relational.*;
+import org.jlua.main.nodes.operations.relational.LuaEqualsNodeFactory;
+import org.jlua.main.nodes.operations.relational.LuaGreaterOrEqualsNodeFactory;
+import org.jlua.main.nodes.operations.relational.LuaGreaterThanNodeFactory;
+import org.jlua.main.nodes.operations.relational.LuaLessOrEqualsNodeFactory;
+import org.jlua.main.nodes.operations.relational.LuaLessThanNodeFactory;
 import org.jlua.main.nodes.statements.*;
 import org.jlua.main.runtime.LuaContext;
 import org.jlua.main.runtime.LuaFunction;
@@ -66,6 +75,8 @@ public class Translator extends Visitor {
             return visitLocalNameExp((Exp.NameExp) object);
         } else if (object instanceof Exp.FuncCall) {
             return visitFuncCall((Exp.FuncCall) object);
+        } else if (object instanceof Stat.LocalFuncDef) {
+            return visitLocalFuncDef((Stat.LocalFuncDef) object);
         } else {
             if (object != null) {
                 System.err.println("Needs be handled: " + object.getClass().getName());
@@ -75,15 +86,34 @@ public class Translator extends Visitor {
 
     }
 
+    private Object visitLocalFuncDef(Stat.LocalFuncDef localFuncDef) {
+        final LuaWriteLocalVariableNode[] paramsIntoLocals = new LuaWriteLocalVariableNode[localFuncDef.body.parlist.names.size()];
+        for(int i = 0; i < localFuncDef.body.parlist.names.size(); i++) {
+            Name paramName = (Name) localFuncDef.body.parlist.names.get(i);
+            paramsIntoLocals[i] = addFormalParameter(paramName.name, i);
+        }
+        LuaBlockNode prelude = new LuaBlockNode(paramsIntoLocals);
+        LuaStatementNode body = (LuaStatementNode) translate(localFuncDef.body.block);
+        LuaBlockNode preludeAndBody = new LuaBlockNode(new LuaNode[]{prelude, body});
+        LuaFunctionBody methodBody = new LuaFunctionBody(preludeAndBody);
+        String name = localFuncDef.name.name;
+
+        return LuaWriteLocalVariableNodeFactory.create(methodBody, frameDescriptor.findOrAddFrameSlot(name));
+    }
+
     private Object visitLocalNameExp(Exp.NameExp nameExp) {
         return visitName(nameExp.name);
     }
 
     private Object visitName(Name name) {
-        final FrameSlot frameSlot = frameDescriptor.findFrameSlot(name.name);
+        return visitName(name.name);
+    }
+
+    private Object visitName(String name) {
+        final FrameSlot frameSlot = frameDescriptor.findFrameSlot(name);
 
         if (frameSlot == null) {
-            throw new RuntimeException(String.format("Name '%s' not found in translator", name.name));
+            throw new RuntimeException(String.format("Name '%s' not found in translator", name));
         }
 
         return LuaReadLocalVariableNodeFactory.create(frameSlot);
@@ -181,18 +211,23 @@ public class Translator extends Visitor {
         if (funcCall.isfunccall()) {
             // Calling a function
 
-            LuaFunction method;
+            LuaExpressionNode functionExpression;
 
             if (funcCall.lhs instanceof Exp.NameExp) {
                 Exp.NameExp nameExp = (Exp.NameExp) funcCall.lhs;
-                method = context.findLuaMethod(nameExp.name.name);
+                final FrameSlot frameSlot = frameDescriptor.findFrameSlot(nameExp.name.name);
+                if (frameSlot == null) {
+                    functionExpression = new LuaFunctionNode(context.findLuaMethod(nameExp.name.name));
+                } else {
+                    functionExpression = LuaReadLocalVariableNodeFactory.create(frameSlot);
+                }
             } else if (funcCall.lhs instanceof Exp.FieldExp) {
                 Exp.FieldExp fieldExp = (Exp.FieldExp) funcCall.lhs;
 
                 // Hack: statically look for os.clock and use osclock
 
                 if (fieldExp.lhs instanceof Exp.NameExp && ((Exp.NameExp) fieldExp.lhs).name.name.equals("os") && fieldExp.name.name.equals("clock")) {
-                    method = context.findLuaMethod("osclock");
+                    functionExpression = new LuaFunctionNode(context.findLuaMethod("osclock"));
                 } else {
                     throw new UnsupportedOperationException();
                 }
@@ -201,7 +236,7 @@ public class Translator extends Visitor {
             }
 
             List<LuaExpressionNode> arguments = visitFuncArgs(funcCall.args);
-            return new LuaFunctionCall(arguments.toArray(new LuaExpressionNode[arguments.size()]), new LuaFunctionNode(method), new LuaUninitializedDispatchNode());
+            return new LuaFunctionCall(arguments.toArray(new LuaExpressionNode[arguments.size()]), functionExpression, new LuaUninitializedDispatchNode());
         }
         throw new UnsupportedOperationException(String.valueOf("FuncCallStat"));
     }

@@ -16,13 +16,22 @@ public class MethodDefinitionTest extends BaseTranslatorTest {
                 "return newFunction()")
         ).call(), (long) 10);
     }
-//    @Test
-//    public void testFunctionsWithParamTest(){
-//        assertEquals(createCallTarget(createTempFile(
-//                        "function return_value(a)\n" +
-//                                "    return a\n" +
-//                                "end\n" +
-//                                "return return_value(10)")
-//        ).call(), (long) 10);
-//    }
+    @Test
+    public void testFunctionsWithParamTest(){
+        assertEquals(createCallTarget(createTempFile(
+                        "function return_value(a)\n" +
+                                "    return a\n" +
+                                "end\n" +
+                                "return return_value(10)")
+        ).call(), (long) 10);
+    }
+
+    public void testLocalFunctionsWithParamTest() {
+        assertEquals(createCallTarget(createTempFile(
+                        "local function newFunction()\n" +
+                                "return 10\n" +
+                                "end\n" +
+                                "return newFunction()")
+        ).call(), (long) 10);
+    }
 }

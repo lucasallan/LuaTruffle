@@ -1,4 +1,4 @@
-# LuaTruffle -  A Java implementation of the Lua language
+# LuaTruffle -  A Java implementation of the Lua language using Truffle
 
 Master: [![Build Status](https://travis-ci.org/lucasallan/LuaTruffle.svg?branch=master)](https://travis-ci.org/lucasallan/LuaTruffle)
 
@@ -8,7 +8,7 @@ Master: [![Build Status](https://travis-ci.org/lucasallan/LuaTruffle.svg?branch=
 
 ## Running
 
-    bin/jlua my.lua
+    bin/luatruffle my.lua
 
 ## Running With Graal
 
@@ -34,6 +34,6 @@ Compare:
 
     lua src/test/resources/fibonacci.lua
     luajit src/test/resources/fibonacci.lua
-    JAVACMD=../graalvm-jdk1.8.0/bin/java bin/jlua src/test/resources/fibonacci.lua
+    JAVACMD=../graalvm-jdk1.8.0/bin/java bin/luatruffle src/test/resources/fibonacci.lua
 
 We're around 6x compared to `lua`, and a third as fast as `luajit`.

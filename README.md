@@ -19,7 +19,7 @@ Download one of:
 
 Then run:
 
-    JAVACMD=../graalvm-jdk1.8.0/bin/java my.lua
+    JAVACMD=../graalvm-jdk1.8.0/bin/java bin/luatruffle my.lua
 
 ## Options
 

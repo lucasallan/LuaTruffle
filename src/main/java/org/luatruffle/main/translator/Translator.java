@@ -69,8 +69,6 @@ public class Translator extends Visitor {
             return visitFuncCall((Exp.FuncCall) object);
         } else if (object instanceof Stat.LocalFuncDef) {
             return visitLocalFuncDef((Stat.LocalFuncDef) object);
-        } else if (object instanceof Exp.FieldExp) {
-            return visitFieldExp((Exp.FieldExp) object);
         } else {
             if (object != null) {
                 System.err.println("Needs be handled: " + object.getClass().getName());

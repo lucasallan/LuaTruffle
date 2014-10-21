@@ -1,5 +1,6 @@
 package org.luatruffle.main.translator;
 
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
 import org.luatruffle.main.nodes.*;
@@ -96,7 +97,11 @@ public class Translator extends Visitor {
         LuaFunctionBody methodBody = new LuaFunctionBody(preludeAndBody);
         String name = localFuncDef.name.name;
 
-        return LuaWriteLocalVariableNodeFactory.create(methodBody, frameDescriptor.findOrAddFrameSlot(name));
+        LuaRootNode root = new LuaRootNode(methodBody, getFrameDescriptor());
+        context.addLuaMethod(name, root);
+        System.out.printf("No support to local methods yet - using global methods.\n");
+        return root;
+        //return LuaWriteLocalVariableNodeFactory.create(methodBody, frameDescriptor.findOrAddFrameSlot(name));
     }
 
     private Object visitLocalNameExp(Exp.NameExp nameExp) {

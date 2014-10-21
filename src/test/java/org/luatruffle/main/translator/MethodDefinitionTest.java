@@ -3,6 +3,7 @@ package org.luatruffle.main.translator;
 import org.luatruffle.main.runtime.LuaNull;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.luatruffle.main.runtime.LuaNull;
 
 /**
  * Created by Lucas Allan Amorim on 2014-09-25.
@@ -24,6 +25,7 @@ public class MethodDefinitionTest extends BaseTranslatorTest {
                             "return a\n" +
                         "end\n" +
                         "return return_value(10)")
+
         ).call(), (long) 10);
     }
 
@@ -32,6 +34,7 @@ public class MethodDefinitionTest extends BaseTranslatorTest {
                         "local function newFunction()\n" +
                             "return 10\n" +
                         "end")
+
         ).call(), LuaNull.SINGLETON);
     }
 

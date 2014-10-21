@@ -1,5 +1,6 @@
 package org.luatruffle.main.translator;
 
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
 import org.luatruffle.main.nodes.*;
@@ -66,6 +67,8 @@ public class Translator extends Visitor {
             return visitLocalNameExp((Exp.NameExp) object);
         } else if (object instanceof Exp.FuncCall) {
             return visitFuncCall((Exp.FuncCall) object);
+        } else if (object instanceof Stat.LocalFuncDef) {
+            return visitLocalFuncDef((Stat.LocalFuncDef) object);
         } else {
             if (object != null) {
                 System.err.println("Needs be handled: " + object.getClass().getName());
@@ -75,6 +78,23 @@ public class Translator extends Visitor {
 
     }
 
+    private Object visitLocalFuncDef(Stat.LocalFuncDef localFuncDef) {
+        final LuaWriteLocalVariableNode[] paramsIntoLocals = new LuaWriteLocalVariableNode[localFuncDef.body.parlist.names.size()];
+        for(int i = 0; i < localFuncDef.body.parlist.names.size(); i++) {
+            Name paramName = (Name) localFuncDef.body.parlist.names.get(i);
+            paramsIntoLocals[i] = addFormalParameter(paramName.name, i);
+        }
+        LuaBlockNode prelude = new LuaBlockNode(paramsIntoLocals);
+        LuaStatementNode body = (LuaStatementNode) translate(localFuncDef.body.block);
+        LuaBlockNode preludeAndBody = new LuaBlockNode(new LuaNode[]{prelude, body});
+        LuaFunctionBody methodBody = new LuaFunctionBody(preludeAndBody);
+        String name = localFuncDef.name.name;
+        LuaRootNode root = new LuaRootNode(methodBody, getFrameDescriptor());
+        context.addLuaMethod(name, root);
+        System.out.printf("No support to local methods yet - using global methods.\n");
+        return root;
+        //return LuaWriteLocalVariableNodeFactory.create(methodBody, frameDescriptor.findOrAddFrameSlot(name));
+    }
     private Object visitLocalNameExp(Exp.NameExp nameExp) {
         return visitName(nameExp.name);
     }

@@ -1,6 +1,7 @@
 package org.luatruffle.main.translator;
 
 import org.junit.Test;
+import org.luatruffle.main.runtime.LuaNull;
 
 /**
  * Created by Lucas Allan Amorim on 2014-09-25.
@@ -15,13 +16,30 @@ public class MethodDefinitionTest extends BaseTranslatorTest {
                 "return newFunction()")
         ).call(), (long) 10);
     }
-//    @Test
-//    public void testFunctionsWithParamTest(){
-//        assertEquals(createCallTarget(createTempFile(
-//                        "function return_value(a)\n" +
-//                                "    return a\n" +
-//                                "end\n" +
-//                                "return return_value(10)")
-//        ).call(), (long) 10);
-//    }
+    @Test
+    public void testFunctionsWithParamTest(){
+        assertEquals(createCallTarget(createTempFile(
+                        "function return_value(a)\n" +
+                                "return a\n" +
+                                "end\n" +
+                                "return return_value(10)")
+        ).call(), (long) 10);
+    }
+
+    public void testDefiningLocalFunctions() {
+        assertEquals(createCallTarget(createTempFile(
+                        "local function newFunction()\n" +
+                                "return 10\n" +
+                                "end")
+        ).call(), LuaNull.SINGLETON);
+    }
+
+    public void testCallingLocalFunctions() {
+        assertEquals(createCallTarget(createTempFile(
+                        "local function return_value()\n" +
+                                "return 10\n" +
+                                "end\n" +
+                                "return return_value()")
+        ).call(), (long) 10);
+    }
 }

@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Luatruffle by lucasallan</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Luatruffle</h1>
+        <p class="header"> implementation of Lua on the JVM using Truffle</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/lucasallan/LuaTruffle/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/lucasallan/LuaTruffle/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/lucasallan/LuaTruffle">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/lucasallan">lucasallan</a></p>
+
+
+      </header>
+      <section>
+        <h1>
+<a id="luatruffle----a-java-implementation-of-the-lua-language-using-truffle" class="anchor" href="#luatruffle----a-java-implementation-of-the-lua-language-using-truffle" aria-hidden="true"><span class="octicon octicon-link"></span></a>LuaTruffle -  A Java implementation of the Lua language using Truffle</h1>
+
+<p>Master: <a href="https://travis-ci.org/lucasallan/LuaTruffle"><img src="https://travis-ci.org/lucasallan/LuaTruffle.svg?branch=master" alt="Build Status"></a></p>
+
+<h2>
+<a id="compiling" class="anchor" href="#compiling" aria-hidden="true"><span class="octicon octicon-link"></span></a> Compiling</h2>
+
+<pre><code>mvn package
+</code></pre>
+
+<h2>
+<a id="running" class="anchor" href="#running" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running</h2>
+
+<pre><code>bin/luatruffle my.lua
+</code></pre>
+
+<h2>
+<a id="running-with-graal" class="anchor" href="#running-with-graal" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running With Graal</h2>
+
+<p>Download one of:</p>
+
+<ul>
+<li><a href="http://lafo.ssw.uni-linz.ac.at/graalvm/openjdk-8-graalvm-b132-linux-x86_64-0.5.tar.gz">http://lafo.ssw.uni-linz.ac.at/graalvm/openjdk-8-graalvm-b132-linux-x86_64-0.5.tar.gz</a></li>
+<li><a href="http://lafo.ssw.uni-linz.ac.at/graalvm/openjdk-8-graalvm-b132-macosx-x86_64-0.5.tar.gz">http://lafo.ssw.uni-linz.ac.at/graalvm/openjdk-8-graalvm-b132-macosx-x86_64-0.5.tar.gz</a></li>
+</ul>
+
+<p>Then run:</p>
+
+<pre><code>JAVACMD=../graalvm-jdk1.8.0/bin/java bin/luatruffle my.lua
+</code></pre>
+
+<h2>
+<a id="options" class="anchor" href="#options" aria-hidden="true"><span class="octicon octicon-link"></span></a>Options</h2>
+
+<p>To pass options to the JVM, prefix with <code>-J</code>. For example, <code>-J-Xmx1G</code>.</p>
+
+<h2>
+<a id="performance" class="anchor" href="#performance" aria-hidden="true"><span class="octicon octicon-link"></span></a>Performance</h2>
+
+<p>Fibonacci is of course a terrible benchmark, but it's all we can run at the
+moment. We also probably don't implement Lua correctly yet.</p>
+
+<p>Compare:</p>
+
+<pre><code>lua src/test/resources/fibonacci.lua
+luajit src/test/resources/fibonacci.lua
+JAVACMD=../graalvm-jdk1.8.0/bin/java bin/luatruffle src/test/resources/fibonacci.lua
+</code></pre>
+
+<p>We're around 6x compared to <code>lua</code>, and a third as fast as <code>luajit</code>.</p>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>

@@ -239,14 +239,18 @@ public class Translator extends Visitor {
     }
 
     public Object visitLocalAssign(LocalAssign localAssign) {
+        final List<LuaNode> assignments = new ArrayList<>();
 
-        // For now, returns only the first assignment
         for(int i = 0; i< localAssign.values.size(); i++) {
             LuaExpressionNode luaExpressionNode = (LuaExpressionNode) translate(localAssign.values.get(i));
-            return LuaWriteLocalVariableNodeFactory.create(luaExpressionNode, frameDescriptor.findOrAddFrameSlot(((Name) localAssign.names.get(i)).name));
+            assignments.add(LuaWriteLocalVariableNodeFactory.create(luaExpressionNode, frameDescriptor.findOrAddFrameSlot(((Name) localAssign.names.get(i)).name)));
         }
 
-        throw new UnsupportedOperationException(String.valueOf(localAssign));
+        if (assignments.size() == 1) {
+            return assignments.get(0);
+        } else {
+            return new LuaBlockNode(assignments.toArray(new LuaNode[assignments.size()]));
+        }
     }
 
     public LuaReturnNode visitReturn(Stat.Return aReturn) {

@@ -13,4 +13,18 @@ public class TranslatorTest extends BaseTranslatorTest {
         long expectResult = 10;
         assertEquals(callTarget.call(), expectResult);
     }
+
+    @Test
+    public void testNumericFor() {
+        CallTarget callTarget = createCallTarget(getLuaFile("numeric_for.lua"));
+        long expectResult = 10;
+        assertEquals(callTarget.call(), expectResult);
+    }
+
+    @Test
+    public void testNumericForWithParam() {
+        CallTarget callTarget = createCallTarget(getLuaFile("numeric_for2.lua"));
+        long expectResult = 100;
+        assertEquals(callTarget.call(), expectResult);
+    }
 }

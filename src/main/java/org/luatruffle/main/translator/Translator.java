@@ -8,6 +8,7 @@ import org.luatruffle.main.nodes.call.LuaFunctionCall;
 import org.luatruffle.main.nodes.call.LuaUninitializedDispatchNode;
 import org.luatruffle.main.nodes.expressions.LuaFunctionBody;
 import org.luatruffle.main.nodes.expressions.LuaFunctionNode;
+import org.luatruffle.main.nodes.expressions.LuaUnoExpression;
 import org.luatruffle.main.nodes.local.LuaReadArgumentNode;
 import org.luatruffle.main.nodes.local.LuaReadLocalVariableNodeFactory;
 import org.luatruffle.main.nodes.local.LuaWriteLocalVariableNode;
@@ -23,6 +24,7 @@ import org.luaj.vm2.ast.Stat.LocalAssign;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by Lucas Allan Amorim on 2014-09-08.
@@ -69,13 +71,32 @@ public class Translator extends Visitor {
             return visitFuncCall((Exp.FuncCall) object);
         } else if (object instanceof Stat.LocalFuncDef) {
             return visitLocalFuncDef((Stat.LocalFuncDef) object);
-        } else {
+        } else if (object instanceof Stat.NumericFor) {
+            return visitNumericFor((Stat.NumericFor) object);
+        } else if (object instanceof Exp.UnopExp) {
+            return visitUnopExp((Exp.UnopExp) object);
+        }
+        else {
             if (object != null) {
                 System.err.println("Needs be handled: " + object.getClass().getName());
             }
             return rootNode;
         }
+    }
 
+    private Object visitUnopExp(Exp.UnopExp unoExp) {
+        int op = unoExp.op;
+        LuaExpressionNode rhs = (LuaExpressionNode) translate(unoExp.rhs);
+        return new LuaUnoExpression(op, rhs);
+    }
+
+    private Object visitNumericFor(Stat.NumericFor numericFor) {
+        LuaBlockNode block = (LuaBlockNode) translate(numericFor.block);
+        LuaExpressionNode init = (LuaExpressionNode) translate(numericFor.initial);
+        LuaExpressionNode limit = (LuaExpressionNode) translate(numericFor.limit);
+        Object step = translate(numericFor.step);
+
+        return new LuaNumericFor(init, limit, block, step);
     }
 
     private Object visitLocalFuncDef(Stat.LocalFuncDef localFuncDef) {

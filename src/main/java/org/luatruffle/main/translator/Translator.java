@@ -91,12 +91,17 @@ public class Translator extends Visitor {
     }
 
     private Object visitNumericFor(Stat.NumericFor numericFor) {
+        final List<LuaNode> operations = new ArrayList<>();
+
         LuaBlockNode block = (LuaBlockNode) translate(numericFor.block);
         LuaExpressionNode init = (LuaExpressionNode) translate(numericFor.initial);
         LuaExpressionNode limit = (LuaExpressionNode) translate(numericFor.limit);
         Object step = translate(numericFor.step);
 
-        return new LuaNumericFor(init, limit, block, step);
+        operations.add(LuaWriteLocalVariableNodeFactory.create(init, frameDescriptor.findOrAddFrameSlot(numericFor.name.name)));
+        operations.add(new LuaNumericFor(init, limit, block, step));
+
+        return new LuaBlockNode(operations.toArray(new LuaNode[operations.size()]));
     }
 
     private Object visitLocalFuncDef(Stat.LocalFuncDef localFuncDef) {
@@ -117,14 +122,17 @@ public class Translator extends Visitor {
         //return LuaWriteLocalVariableNodeFactory.create(methodBody, frameDescriptor.findOrAddFrameSlot(name));
     }
     private Object visitLocalNameExp(Exp.NameExp nameExp) {
-        return visitName(nameExp.name);
+        Object name = visitName(nameExp.name);
+        if (name == null) {
+            throw new RuntimeException(String.format("Name '%s' not found in translator - Line %s column %s", nameExp.name.name, nameExp.beginLine, nameExp.beginColumn));
+        }
+        return name;
     }
 
     private Object visitName(Name name) {
         final FrameSlot frameSlot = frameDescriptor.findFrameSlot(name.name);
-
         if (frameSlot == null) {
-            throw new RuntimeException(String.format("Name '%s' not found in translator", name.name));
+            return null;
         }
 
         return LuaReadLocalVariableNodeFactory.create(frameSlot);

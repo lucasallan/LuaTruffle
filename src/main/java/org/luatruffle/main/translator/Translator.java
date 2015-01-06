@@ -1,6 +1,5 @@
 package org.luatruffle.main.translator;
 
-import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
 import org.luatruffle.main.nodes.*;
@@ -24,7 +23,6 @@ import org.luaj.vm2.ast.Stat.LocalAssign;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Created by Lucas Allan Amorim on 2014-09-08.
@@ -75,12 +73,31 @@ public class Translator extends Visitor {
             return visitNumericFor((Stat.NumericFor) object);
         } else if (object instanceof Exp.UnopExp) {
             return visitUnopExp((Exp.UnopExp) object);
+        } else if (object instanceof Stat.Assign) {
+            return visitAssign((Stat.Assign) object);
         }
         else {
             if (object != null) {
                 System.err.println("Needs be handled: " + object.getClass().getName());
             }
             return rootNode;
+        }
+    }
+
+    private Object visitAssign(Stat.Assign assign) {
+        final List<LuaNode> assignments = new ArrayList<>();
+
+        for(int i = 0; i< assign.vars.size(); i++) {
+            LuaExpressionNode luaExpressionNode = (LuaExpressionNode) translate(assign.exps.get(i));
+            Exp.NameExp name = (Exp.NameExp) assign.vars.get(i);
+            assignments.add(LuaWriteLocalVariableNodeFactory.create(luaExpressionNode, frameDescriptor.findOrAddFrameSlot(name.name.name)));
+            System.out.printf("No support to global variables yet - '%s' declared as a local variable.\n", name.name.name);
+        }
+
+        if (assignments.size() == 1) {
+            return assignments.get(0);
+        } else {
+            return new LuaBlockNode(assignments.toArray(new LuaNode[assignments.size()]));
         }
     }
 
@@ -91,17 +108,17 @@ public class Translator extends Visitor {
     }
 
     private Object visitNumericFor(Stat.NumericFor numericFor) {
-        final List<LuaNode> operations = new ArrayList<>();
+        final LuaNode[] operations = new LuaNode[2];
 
         LuaBlockNode block = (LuaBlockNode) translate(numericFor.block);
         LuaExpressionNode init = (LuaExpressionNode) translate(numericFor.initial);
         LuaExpressionNode limit = (LuaExpressionNode) translate(numericFor.limit);
         Object step = translate(numericFor.step);
 
-        operations.add(LuaWriteLocalVariableNodeFactory.create(init, frameDescriptor.findOrAddFrameSlot(numericFor.name.name)));
-        operations.add(new LuaNumericFor(init, limit, block, step));
+        operations[1] = LuaWriteLocalVariableNodeFactory.create(init, frameDescriptor.findOrAddFrameSlot(numericFor.name.name));
+        operations[0] = new LuaNumericFor(init, limit, block, step);
 
-        return new LuaBlockNode(operations.toArray(new LuaNode[operations.size()]));
+        return new LuaBlockNode(operations);
     }
 
     private Object visitLocalFuncDef(Stat.LocalFuncDef localFuncDef) {

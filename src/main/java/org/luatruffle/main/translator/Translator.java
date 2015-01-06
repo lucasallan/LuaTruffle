@@ -108,17 +108,13 @@ public class Translator extends Visitor {
     }
 
     private Object visitNumericFor(Stat.NumericFor numericFor) {
-        final LuaNode[] operations = new LuaNode[2];
 
         LuaBlockNode block = (LuaBlockNode) translate(numericFor.block);
         LuaExpressionNode init = (LuaExpressionNode) translate(numericFor.initial);
         LuaExpressionNode limit = (LuaExpressionNode) translate(numericFor.limit);
         Object step = translate(numericFor.step);
 
-        operations[1] = LuaWriteLocalVariableNodeFactory.create(init, frameDescriptor.findOrAddFrameSlot(numericFor.name.name));
-        operations[0] = new LuaNumericFor(init, limit, block, step);
-
-        return new LuaBlockNode(operations);
+        return new LuaNumericFor(init, limit, block, step, numericFor.name.name);
     }
 
     private Object visitLocalFuncDef(Stat.LocalFuncDef localFuncDef) {

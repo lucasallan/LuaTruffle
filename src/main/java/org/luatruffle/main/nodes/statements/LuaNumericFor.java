@@ -1,17 +1,14 @@
 package org.luatruffle.main.nodes.statements;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import org.luaj.vm2.ast.Exp;
 import org.luatruffle.main.nodes.LuaExpressionNode;
 import org.luatruffle.main.nodes.LuaLongConstantNode;
 import org.luatruffle.main.nodes.LuaNode;
 import org.luatruffle.main.nodes.LuaStatementNode;
 import org.luatruffle.main.nodes.expressions.LuaUnoExpression;
-import org.luatruffle.main.nodes.operations.arithmetic.LuaAddNodeFactory;
-import org.luatruffle.main.nodes.operations.arithmetic.LuaSubtractionNodeFactory;
+import org.luatruffle.main.nodes.local.LuaWriteLocalVariableNodeFactory;
 import org.luatruffle.main.nodes.statements.controlflow.LuaBreakException;
 
 /**
@@ -28,12 +25,15 @@ public class LuaNumericFor extends LuaStatementNode {
     private LuaBlockNode blockNode;
     @Child
     private Object step;
+    @Child
+    private String varName;
 
-    public LuaNumericFor(LuaExpressionNode init, LuaExpressionNode limit, LuaBlockNode blockNode, Object step) {
+    public LuaNumericFor(LuaExpressionNode init, LuaExpressionNode limit, LuaBlockNode blockNode, Object step, String varName) {
         this.init = init;
         this.limit = limit;
         this.blockNode = blockNode;
         this.step = step;
+        this.varName = varName;
     }
 
     @Override
@@ -47,7 +47,11 @@ public class LuaNumericFor extends LuaStatementNode {
                 Long number = rhs.executeLong(frame);
 
                 while (initial >= limitFinal) {
-                    blockNode.executeVoid(frame);
+                    final LuaNode[] block = new LuaNode[2];
+                    block[0] = LuaWriteLocalVariableNodeFactory.create(init, frame.getFrameDescriptor().findOrAddFrameSlot(varName));
+                    block[1] = blockNode;
+                    new LuaBlockNode(block).executeVoid(frame);
+
                     initial = initial - number;
                 }
 

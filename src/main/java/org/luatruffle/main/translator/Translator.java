@@ -90,7 +90,7 @@ public class Translator extends Visitor {
         for(int i = 0; i< assign.vars.size(); i++) {
             LuaExpressionNode luaExpressionNode = (LuaExpressionNode) translate(assign.exps.get(i));
             Exp.NameExp name = (Exp.NameExp) assign.vars.get(i);
-            assignments.add(LuaWriteLocalVariableNodeFactory.create(luaExpressionNode, frameDescriptor.findOrAddFrameSlot(name.name.name)));
+            assignments.add(declareLocalVariable(name.name.name, luaExpressionNode));
             System.out.printf("No support to global variables yet - '%s' declared as a local variable.\n", name.name.name);
         }
 
@@ -289,7 +289,8 @@ public class Translator extends Visitor {
 
         for(int i = 0; i< localAssign.values.size(); i++) {
             LuaExpressionNode luaExpressionNode = (LuaExpressionNode) translate(localAssign.values.get(i));
-            assignments.add(LuaWriteLocalVariableNodeFactory.create(luaExpressionNode, frameDescriptor.findOrAddFrameSlot(((Name) localAssign.names.get(i)).name)));
+            String name = ((Name) localAssign.names.get(i)).name;
+            assignments.add(declareLocalVariable(name, luaExpressionNode));
         }
 
         if (assignments.size() == 1) {
@@ -368,5 +369,9 @@ public class Translator extends Visitor {
 
     public FrameDescriptor getFrameDescriptor() {
         return frameDescriptor;
+    }
+
+    private LuaNode declareLocalVariable(String name, LuaExpressionNode value) {
+        return LuaWriteLocalVariableNodeFactory.create(value, frameDescriptor.findOrAddFrameSlot(name));
     }
 }

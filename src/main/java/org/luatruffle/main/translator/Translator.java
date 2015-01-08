@@ -75,6 +75,8 @@ public class Translator extends Visitor {
             return visitUnopExp((Exp.UnopExp) object);
         } else if (object instanceof Stat.Assign) {
             return visitAssign((Stat.Assign) object);
+        } else if (object instanceof Long) {
+            return new LuaLongConstantNode((Long) object);
         }
         else {
             if (object != null) {
@@ -110,11 +112,27 @@ public class Translator extends Visitor {
     private Object visitNumericFor(Stat.NumericFor numericFor) {
 
         LuaBlockNode block = (LuaBlockNode) translate(numericFor.block);
-        LuaExpressionNode init = (LuaExpressionNode) translate(numericFor.initial);
-        LuaExpressionNode limit = (LuaExpressionNode) translate(numericFor.limit);
         Object step = translate(numericFor.step);
+        
+        if (step instanceof LuaUnoExpression && ((LuaUnoExpression) step).getOp() == 19) {
+            Exp.UnopExp exp = (Exp.UnopExp) numericFor.step;
+            Long initial = ((Exp.Constant) numericFor.initial).value.tolong();
+            Long limitFinal = ((Exp.Constant) numericFor.limit).value.tolong();
+            Long number = ( (Exp.Constant) exp.rhs).value.checklong();
 
-        return new LuaNumericFor(init, limit, block, step, numericFor.name.name);
+            final ArrayList<LuaNode> blockNodes = new ArrayList<>();
+
+
+            while (initial >= limitFinal) {
+                LuaExpressionNode counter = (LuaExpressionNode) translate(initial);
+                blockNodes.add(declareLocalVariable(numericFor.name.name, counter));
+                blockNodes.add(block);
+                initial = initial - number;
+            }
+
+            return new LuaNumericFor(new LuaBlockNode(blockNodes.toArray(new LuaNode[blockNodes.size()])));
+        }
+        return null;
     }
 
     private Object visitLocalFuncDef(Stat.LocalFuncDef localFuncDef) {
@@ -132,8 +150,8 @@ public class Translator extends Visitor {
         context.addLuaMethod(name, root);
         System.out.printf("No support to local methods yet - using global methods.\n");
         return root;
-        //return LuaWriteLocalVariableNodeFactory.create(methodBody, frameDescriptor.findOrAddFrameSlot(name));
     }
+
     private Object visitLocalNameExp(Exp.NameExp nameExp) {
         Object name = visitName(nameExp.name);
         if (name == null) {

@@ -112,27 +112,38 @@ public class Translator extends Visitor {
     private Object visitNumericFor(Stat.NumericFor numericFor) {
 
         LuaBlockNode block = (LuaBlockNode) translate(numericFor.block);
-        Object step = translate(numericFor.step);
-        
-        if (step instanceof LuaUnoExpression && ((LuaUnoExpression) step).getOp() == 19) {
+        Long initial = ((Exp.Constant) numericFor.initial).value.tolong();
+        Long limitFinal = ((Exp.Constant) numericFor.limit).value.tolong();
+        final ArrayList<LuaNode> blockNodes = new ArrayList<>();
+
+        // Default values
+        boolean plusOperation = true;
+        long number = 1;
+
+        if (numericFor.step instanceof Exp.UnopExp) {
             Exp.UnopExp exp = (Exp.UnopExp) numericFor.step;
-            Long initial = ((Exp.Constant) numericFor.initial).value.tolong();
-            Long limitFinal = ((Exp.Constant) numericFor.limit).value.tolong();
-            Long number = ( (Exp.Constant) exp.rhs).value.checklong();
-
-            final ArrayList<LuaNode> blockNodes = new ArrayList<>();
-
-
+            number = ((Exp.Constant) exp.rhs).value.checklong();
+            if (((LuaUnoExpression) translate(exp)).getOp() == 19) {
+                plusOperation = false;
+            }
+        } else if (numericFor.step instanceof Exp.Constant) {
+            number = ((Exp.Constant) numericFor.step).value.checklong();
+        }
+        if (plusOperation) {
+            while (initial <= limitFinal) {
+                LuaExpressionNode counter = (LuaExpressionNode) translate(initial);blockNodes.add(declareLocalVariable(numericFor.name.name, counter));
+                blockNodes.add(block);
+                initial = initial + number;
+            }
+        } else {
             while (initial >= limitFinal) {
                 LuaExpressionNode counter = (LuaExpressionNode) translate(initial);
                 blockNodes.add(declareLocalVariable(numericFor.name.name, counter));
                 blockNodes.add(block);
                 initial = initial - number;
             }
-
-            return new LuaNumericFor(new LuaBlockNode(blockNodes.toArray(new LuaNode[blockNodes.size()])));
         }
-        return null;
+        return new LuaNumericFor(new LuaBlockNode(blockNodes.toArray(new LuaNode[blockNodes.size()])));
     }
 
     private Object visitLocalFuncDef(Stat.LocalFuncDef localFuncDef) {

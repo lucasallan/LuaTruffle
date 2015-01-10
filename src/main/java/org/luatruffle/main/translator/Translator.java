@@ -336,9 +336,14 @@ public class Translator extends Visitor {
     public Object visitLocalAssign(LocalAssign localAssign) {
         final List<LuaNode> assignments = new ArrayList<>();
 
-        for(int i = 0; i< localAssign.values.size(); i++) {
-            LuaExpressionNode luaExpressionNode = (LuaExpressionNode) translate(localAssign.values.get(i));
-            String name = ((Name) localAssign.names.get(i)).name;
+        for(int i = 0; i< localAssign.names.size(); i++) {
+            LuaExpressionNode luaExpressionNode;
+            if (localAssign.values == null || localAssign.values.get(i) == null) {
+                luaExpressionNode = new LuaObjectConstantNode(LuaNull.SINGLETON);
+            } else {
+                luaExpressionNode = (LuaExpressionNode) translate(localAssign.values.get(i));
+            }
+                String name = ((Name) localAssign.names.get(i)).name;
             assignments.add(declareLocalVariable(name, luaExpressionNode));
         }
 

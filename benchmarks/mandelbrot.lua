@@ -14,7 +14,7 @@ function mandelbro()
     for xb=0,width-1,8 do
       local bits = 0
       local xbb = xb+7
-      local loopend = 0
+      local loopend
       if xbb < width then loopend = xbb else loopend = width - 1 end
       for x=xb,loopend do
         bits = bits + bits
@@ -44,7 +44,7 @@ function mandelbro()
 end
 
 -- Warming up the VM
-for i=0,100 do
+for i=0,1000 do
   mandelbro()
 end
 

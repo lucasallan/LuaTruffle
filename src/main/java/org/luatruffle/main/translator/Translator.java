@@ -40,6 +40,7 @@ public class Translator extends Visitor {
 
     // TODO needs a good cleaup
     public Object translate(Object object) {
+        try {
         if (object instanceof Chunk) {
             return visitChunk((Chunk) object);
         } else if (object instanceof Block) {
@@ -76,12 +77,24 @@ public class Translator extends Visitor {
             return visitAssign((Stat.Assign) object);
         } else if (object instanceof Long) {
             return new LuaLongConstantNode((Long) object);
+        } else if (object instanceof Stat.Break) {
+            return new LuaBreakNode();
         }
         else {
             if (object != null) {
                 System.err.println("Needs be handled: " + object.getClass().getName());
             }
             return rootNode;
+        }
+        } catch (Exception e) {
+            if (object instanceof Exp) {
+                System.out.println("Error line: " + ((Exp) object).beginLine + " Column: " + ((Exp) object).beginColumn );
+            } else if (object instanceof Stat) {
+                System.out.println("Error line: " + ((Stat) object).beginLine + " Column: " + ((Stat) object).beginColumn );
+            }
+
+            e.printStackTrace();
+            return null;
         }
     }
 

@@ -24,7 +24,7 @@ public class TranslatorTest extends BaseTranslatorTest {
     @Test
     public void testNumericForWithParam() {
         CallTarget callTarget = createCallTarget(getLuaFile("numeric_for2.lua"));
-        long expectResult = 100;
+        long expectResult = 0;
         assertEquals(callTarget.call(), expectResult);
     }
 }

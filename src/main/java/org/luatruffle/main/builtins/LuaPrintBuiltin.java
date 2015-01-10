@@ -13,28 +13,28 @@ import org.luatruffle.main.nodes.LuaNode;
 @NodeChild(value = "value", type = LuaNode.class)
 public abstract class LuaPrintBuiltin extends LuaNode {
 
-    @CompilerDirectives.SlowPath
+    @CompilerDirectives.TruffleBoundary
     @Specialization
     public long print(long value) {
         System.out.println(value);
         return value;
     }
 
-    @CompilerDirectives.SlowPath
+    @CompilerDirectives.TruffleBoundary
     @Specialization
     public boolean print(boolean value) {
         System.out.println(value);
         return value;
     }
 
-    @CompilerDirectives.SlowPath
+    @CompilerDirectives.TruffleBoundary
     @Specialization
     public String print(String value) {
         System.out.println(value);
         return value;
     }
 
-    @CompilerDirectives.SlowPath
+    @CompilerDirectives.TruffleBoundary
     @Specialization
     public Object print(Object value) {
         System.out.println(value);

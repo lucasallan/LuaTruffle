@@ -43,6 +43,11 @@ function mandelbro()
   print(iter)
 end
 
+-- Warming up the VM
+for i=0,100 do
+  mandelbro()
+end
+
 while true do
   mandelbro()
   print("----------------------")

@@ -4,7 +4,6 @@ import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.ExecutionContext;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.NodeFactory;
-import com.oracle.truffle.api.instrument.SourceCallback;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import org.luatruffle.main.builtins.LuaPrintBuiltinFactory;
 import org.luatruffle.main.builtins.LuaOSClockBuiltinFactory;
@@ -24,7 +23,6 @@ import java.io.PrintStream;
 public class LuaContext extends ExecutionContext {
 
     private final LuaFunctionRegistry luaFunctionRegistry;
-    private SourceCallback sourceCallback = null;
 
     public LuaContext() {
         this.luaFunctionRegistry = new LuaFunctionRegistry();
@@ -73,11 +71,6 @@ public class LuaContext extends ExecutionContext {
     @Override
     public String getLanguageShortName() {
         return "Lua";
-    }
-
-    @Override
-    protected void setSourceCallback(SourceCallback sourceCallback) {
-        this.sourceCallback = sourceCallback;
     }
 
     public void executeMain(Chunk chunk) {

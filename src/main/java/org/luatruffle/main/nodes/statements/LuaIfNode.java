@@ -23,8 +23,8 @@ public class LuaIfNode extends LuaStatementNode {
 	@Child
 	private LuaNode elsePartNode;
 
-	private final BranchProfile thenProfile = new BranchProfile();
-	private final BranchProfile elseProfile = new BranchProfile();
+	private final BranchProfile thenProfile = BranchProfile.create();
+	private final BranchProfile elseProfile = BranchProfile.create();
 
 	@CompilerDirectives.CompilationFinal
 	private int thenCount;

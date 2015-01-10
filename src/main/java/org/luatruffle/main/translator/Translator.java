@@ -7,7 +7,6 @@ import org.luatruffle.main.nodes.call.LuaFunctionCall;
 import org.luatruffle.main.nodes.call.LuaUninitializedDispatchNode;
 import org.luatruffle.main.nodes.expressions.LuaFunctionBody;
 import org.luatruffle.main.nodes.expressions.LuaFunctionNode;
-import org.luatruffle.main.nodes.expressions.LuaUnoExpression;
 import org.luatruffle.main.nodes.local.LuaReadArgumentNode;
 import org.luatruffle.main.nodes.local.LuaReadLocalVariableNodeFactory;
 import org.luatruffle.main.nodes.local.LuaWriteLocalVariableNode;
@@ -104,46 +103,58 @@ public class Translator extends Visitor {
     }
 
     private Object visitUnopExp(Exp.UnopExp unoExp) {
-        int op = unoExp.op;
-        LuaExpressionNode rhs = (LuaExpressionNode) translate(unoExp.rhs);
-        return new LuaUnoExpression(op, rhs);
+        LuaExpressionNode child = (LuaExpressionNode) translate( unoExp.rhs);
+
+        switch (unoExp.op) {
+            case 19:
+                return LuaNegateNodeFactory.create(child);
+        }
+        throw new UnsupportedOperationException(String.valueOf(unoExp.op));
     }
 
     private Object visitNumericFor(Stat.NumericFor numericFor) {
+        /*
+         * Desugar from this:
+         *
+         *     for loopVariable = initial, step, limit
+         *         block
+         *     end
+         *
+         * to this:
+         *
+         *     loopVariable = initial
+         *     while loopVariable <= limit
+         *         block
+         *         loopVariable += step
+         *     end
+         */
 
-        LuaBlockNode block = (LuaBlockNode) translate(numericFor.block);
-        Long initial = ((Exp.Constant) numericFor.initial).value.tolong();
-        Long limitFinal = ((Exp.Constant) numericFor.limit).value.tolong();
-        final ArrayList<LuaNode> blockNodes = new ArrayList<>();
+        final FrameSlot loopVariableFrameSlot = frameDescriptor.findOrAddFrameSlot(numericFor.name.name);
 
-        // Default values
-        boolean plusOperation = true;
-        long number = 1;
+        final LuaExpressionNode translatedStep;
 
-        if (numericFor.step instanceof Exp.UnopExp) {
-            Exp.UnopExp exp = (Exp.UnopExp) numericFor.step;
-            number = ((Exp.Constant) exp.rhs).value.checklong();
-            if (((LuaUnoExpression) translate(exp)).getOp() == 19) {
-                plusOperation = false;
-            }
-        } else if (numericFor.step instanceof Exp.Constant) {
-            number = ((Exp.Constant) numericFor.step).value.checklong();
-        }
-        if (plusOperation) {
-            while (initial <= limitFinal) {
-                LuaExpressionNode counter = (LuaExpressionNode) translate(initial);blockNodes.add(declareLocalVariable(numericFor.name.name, counter));
-                blockNodes.add(block);
-                initial = initial + number;
-            }
+        if (numericFor.step == null) {
+            translatedStep = new LuaLongConstantNode(1);
         } else {
-            while (initial >= limitFinal) {
-                LuaExpressionNode counter = (LuaExpressionNode) translate(initial);
-                blockNodes.add(declareLocalVariable(numericFor.name.name, counter));
-                blockNodes.add(block);
-                initial = initial - number;
-            }
+            translatedStep = (LuaExpressionNode) translate(numericFor.step);
         }
-        return new LuaNumericFor(new LuaBlockNode(blockNodes.toArray(new LuaNode[blockNodes.size()])));
+
+        return new LuaBlockNode(new LuaNode[]{
+                LuaWriteLocalVariableNodeFactory.create((LuaExpressionNode) translate(numericFor.initial), loopVariableFrameSlot),
+                new LuaWhileDoNode(
+                        LuaLessOrEqualsNodeFactory.create(
+                                LuaReadLocalVariableNodeFactory.create(loopVariableFrameSlot),
+                                (LuaExpressionNode) translate(numericFor.limit)),
+                        new LuaBlockNode(new LuaNode[]{
+                                (LuaNode) translate(numericFor.block),
+                                LuaWriteLocalVariableNodeFactory.create(
+                                        LuaAddNodeFactory.create(
+                                                LuaReadLocalVariableNodeFactory.create(loopVariableFrameSlot),
+                                                translatedStep),
+                                        loopVariableFrameSlot)
+                        })
+                )
+        });
     }
 
     private Object visitLocalFuncDef(Stat.LocalFuncDef localFuncDef) {

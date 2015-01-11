@@ -1,8 +1,8 @@
 package org.luatruffle.main.nodes.statements;
 
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import com.oracle.truffle.api.nodes.*;
 import org.luatruffle.main.nodes.LuaExpressionNode;
 import org.luatruffle.main.nodes.LuaNode;
 import org.luatruffle.main.nodes.LuaStatementNode;
@@ -14,27 +14,41 @@ import org.luatruffle.main.nodes.statements.controlflow.LuaBreakException;
 @NodeInfo(shortName = "while")
 public class LuaWhileDoNode extends LuaStatementNode {
 
-    @Child
-    private LuaExpressionNode conditionNode;
-    @Child
-    private LuaNode blockNode;
+    @Child protected LoopNode loopNode;
 
     public LuaWhileDoNode(LuaExpressionNode conditionNode, LuaNode blockNode) {
-        this.conditionNode = conditionNode;
-        this.blockNode = blockNode;
+        loopNode = Truffle.getRuntime().createLoopNode(new RepeatingWhileNode(conditionNode, blockNode));
     }
 
     @Override
     public void executeVoid(VirtualFrame frame) {
-        try {
-            while (conditionNode.executeBoolean(frame)) {
-                blockNode.executeVoid(frame);
-            }
+        loopNode.executeLoop(frame);
+    }
+
+    private static class RepeatingWhileNode extends Node implements RepeatingNode {
+
+        @Child private LuaExpressionNode conditionNode;
+        @Child private LuaNode blockNode;
+
+        public RepeatingWhileNode(LuaExpressionNode conditionNode, LuaNode blockNode) {
+            this.conditionNode = conditionNode;
+            this.blockNode = blockNode;
         }
-        catch (LuaBreakException ex) {
-            // TODO do I need to do something here?
-        } catch (UnexpectedResultException e) {
-            throw new UnsupportedOperationException(e);
+
+        @Override
+        public boolean executeRepeating(VirtualFrame frame) {
+            try {
+                if (!conditionNode.executeBoolean(frame)) {
+                    return false;
+                }
+            } catch (UnexpectedResultException e) {
+                throw new UnsupportedOperationException(e);
+            }
+
+            blockNode.executeVoid(frame);
+
+            return true;
         }
     }
+
 }

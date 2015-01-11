@@ -2,13 +2,11 @@
 -- http://shootout.alioth.debian.org/
 -- contributed by Mike Pall
 
-function mandelbro()
-  local width = 3000
+function mandelbro(width)
   local height, wscale = width, 2/width
   local m, limit2 = 50, 4.0
   local iter = 0
 
-  local t1 = os.clock()
   for y=0,height-1 do
     local Ci = 2*y / height - 1
     for xb=0,width-1,8 do
@@ -26,7 +24,7 @@ function mandelbro()
           Zi = Zri + Zri + Ci
           Zrq = Zr*Zr
           Ziq = Zi*Zi
-  	iter = iter + 1
+          iter = iter + 1
           if Zrq + Ziq > limit2 then
             bits = bits + 1
             break
@@ -38,17 +36,11 @@ function mandelbro()
       end
     end
   end
-  local t2 = os.clock()
-  print(t2-t1)
-  print(iter)
-end
-
--- Warming up the VM
-for i=0,1000 do
-  mandelbro()
+  return iter
 end
 
 while true do
-  mandelbro()
-  print("----------------------")
+  local t1 = os.clock()
+  mandelbro(3000)
+  print(os.clock()-t1)
 end

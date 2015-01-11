@@ -22,7 +22,10 @@ public class LuaWhileDoNode extends LuaStatementNode {
 
     @Override
     public void executeVoid(VirtualFrame frame) {
-        loopNode.executeLoop(frame);
+        try {
+            loopNode.executeLoop(frame);
+        } catch (LuaBreakException e) {
+        }
     }
 
     private static class RepeatingWhileNode extends Node implements RepeatingNode {

@@ -41,6 +41,6 @@ end
 
 while true do
   local t1 = os.clock()
-  mandelbro(3000)
+  mandelbro(1000)
   print(os.clock()-t1)
 end

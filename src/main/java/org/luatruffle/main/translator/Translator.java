@@ -79,6 +79,8 @@ public class Translator extends Visitor {
             return new LuaLongConstantNode((Long) object);
         } else if (object instanceof Stat.Break) {
             return new LuaBreakNode();
+        } else if (object instanceof Stat.GenericFor) {
+            return visitGenericFor((Stat.GenericFor) object);
         }
         else {
             if (object != null) {
@@ -96,6 +98,11 @@ public class Translator extends Visitor {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private Object visitGenericFor(Stat.GenericFor genericFor) {
+        System.out.printf("No support for GenericFor yet. Line: " + genericFor.beginLine);
+        return new LuaBlockNode(new LuaNode[0]);
     }
 
     private Object visitAssign(Stat.Assign assign) {

@@ -23,22 +23,27 @@ import java.io.PrintStream;
 public class LuaContext extends ExecutionContext {
 
     private final LuaFunctionRegistry luaFunctionRegistry;
+    private final LuaFunctionRegistry luaGlobalVariableRegistry;
 
     public LuaContext() {
         this.luaFunctionRegistry = new LuaFunctionRegistry();
+        this.luaGlobalVariableRegistry = new LuaFunctionRegistry();
         installBuiltins();
     }
 
     public LuaFunction findLuaMethod(String name){
         return luaFunctionRegistry.lookup(name);
     }
+    public LuaFunction findVariable(String name){
+        return luaGlobalVariableRegistry.lookup(name);
+    }
 
-    public void addLuaMethod(String name, LuaRootNode node, String[] params) {
+    public void addLuaFunction(String name, LuaRootNode node) {
         luaFunctionRegistry.register(name, node);
     }
 
-    public void addLuaMethod(String name, LuaRootNode node) {
-        luaFunctionRegistry.register(name, node);
+    public void addGlobalVariable(String name, LuaRootNode node) {
+        luaGlobalVariableRegistry.register(name, node);
     }
 
     public PrintStream getOutput() {

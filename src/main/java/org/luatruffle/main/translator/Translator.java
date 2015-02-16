@@ -106,13 +106,13 @@ public class Translator extends Visitor {
     }
 
     private Object visitAssign(Stat.Assign assign) {
-        final List<LuaNode> assignments = new ArrayList<>();
+        final List<LuaRootNode> assignments = new ArrayList<>();
 
         for(int i = 0; i< assign.vars.size(); i++) {
             LuaExpressionNode luaExpressionNode = (LuaExpressionNode) translate(assign.exps.get(i));
             Exp.NameExp name = (Exp.NameExp) assign.vars.get(i);
-            assignments.add(declareLocalVariable(name.name.name, luaExpressionNode));
-            System.out.printf("No support to global variables yet - '%s' declared as a local variable.\n", name.name.name);
+            assignments.add(declareGlobalVariable(name.name.name, luaExpressionNode));
+            //System.out.printf("No support to global variables yet - '%s' declared as a local variable.\n", name.name.name);
         }
 
         if (assignments.size() == 1) {
@@ -189,7 +189,7 @@ public class Translator extends Visitor {
         LuaFunctionBody methodBody = new LuaFunctionBody(preludeAndBody);
         String name = localFuncDef.name.name;
         LuaRootNode root = new LuaRootNode(methodBody, getFrameDescriptor());
-        context.addLuaMethod(name, root);
+        context.addLuaFunction(name, root);
         System.out.printf("No support to local methods yet - using global methods.\n");
         return root;
     }
@@ -205,10 +205,17 @@ public class Translator extends Visitor {
     private Object visitName(Name name) {
         final FrameSlot frameSlot = frameDescriptor.findFrameSlot(name.name);
         if (frameSlot == null) {
+            return visitGlobalName(name);
+        }
+        return LuaReadLocalVariableNodeFactory.create(frameSlot);
+    }
+
+    private Object visitGlobalName(Name name) {
+        LuaFunction method = context.findVariable(name.name);
+        if (method == null) {
             return null;
         }
-
-        return LuaReadLocalVariableNodeFactory.create(frameSlot);
+        return new LuaFunctionCall(new LuaExpressionNode[0], new LuaFunctionNode(method), new LuaUninitializedDispatchNode());
     }
 
     private Object visitWhileDo(Stat.WhileDo whileDo) {
@@ -286,7 +293,7 @@ public class Translator extends Visitor {
         LuaFunctionBody methodBody = new LuaFunctionBody(preludeAndBody);
         LuaRootNode root = new LuaRootNode(methodBody, getFrameDescriptor());
         String name = funcDef.name.name.name;
-        context.addLuaMethod(name, root);
+        context.addLuaFunction(name, root);
         return root;
     }
 
@@ -434,5 +441,11 @@ public class Translator extends Visitor {
 
     private LuaNode declareLocalVariable(String name, LuaExpressionNode value) {
         return LuaWriteLocalVariableNodeFactory.create(value, frameDescriptor.findOrAddFrameSlot(name));
+    }
+
+    private LuaRootNode declareGlobalVariable(String name,  LuaExpressionNode value) {
+        LuaRootNode root = new LuaRootNode(value, getFrameDescriptor());
+        context.addGlobalVariable(name, root);
+        return root;
     }
 }

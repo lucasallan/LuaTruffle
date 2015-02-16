@@ -6,7 +6,7 @@ function fibonacci(n)
 end
 
 while true do
-  local start = os.clock()
+  start = os.clock()
   print(fibonacci(40))
   print(os.clock() - start)
 end

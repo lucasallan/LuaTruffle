@@ -13,6 +13,11 @@ public class VariablesTest extends BaseTranslatorTest {
     }
 
     @Test
+    public void testGlobalVariables(){
+        assertEquals(createCallTarget(createTempFile("num = 20\nreturn num")).call(), (long) 20);
+    }
+
+    @Test
     public void testMultipleAssignment(){
         assertEquals(createCallTarget(createTempFile("local a, b = 14, 2\nreturn a + b")).call(), (long) 14 + 2);
     }
